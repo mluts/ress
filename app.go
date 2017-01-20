@@ -1,10 +1,7 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"github.com/gorilla/mux"
-	"io"
 	"net/http"
 )
 
@@ -21,38 +18,9 @@ type createFeedRequest struct {
 	Name, URL string
 }
 
-func parseJSONRequest(v interface{}, r *http.Request) error {
-	dec := json.NewDecoder(r.Body)
-	err := dec.Decode(v)
-	return err
-}
-
-func jsonError(w http.ResponseWriter, msg string) {
-	b, err := json.Marshal(errorResponse{msg})
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusBadRequest)
-	io.Copy(w, bytes.NewReader(b))
-}
-
-func jsonResponse(w http.ResponseWriter, v interface{}) {
-	b, err := json.Marshal(v)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	io.Copy(w, bytes.NewReader(b))
-}
-
 func (a *App) listFeeds(w http.ResponseWriter, r *http.Request) {
 	feeds, err := a.db.allFeeds()
+
 	if err != nil {
 		jsonError(w, err.Error())
 		return
@@ -63,7 +31,7 @@ func (a *App) listFeeds(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) createFeed(w http.ResponseWriter, r *http.Request) {
 	req := createFeedRequest{}
-	err := parseJSONRequest(&req, r)
+	err := decodeJSONRequest(&req, r)
 
 	if err != nil {
 		jsonError(w, err.Error())

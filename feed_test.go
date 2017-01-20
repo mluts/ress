@@ -26,3 +26,23 @@ func TestFeed_validate(t *testing.T) {
 		}
 	}
 }
+
+func TestFeed_create(t *testing.T) {
+	feed := Feed{Name: "The Name", URL: "url"}
+	err := db.createFeed(&feed)
+	if err != nil {
+		panic(err)
+	}
+
+	if db.db.NewRecord(feed) {
+		t.Error("Feed should be persisted")
+	}
+
+	if !feed.Active {
+		t.Error("Feed should be Active initially")
+	}
+
+	if len(feed.Error) != 0 {
+		t.Error("Feed should not contain errors")
+	}
+}

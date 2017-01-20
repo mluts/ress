@@ -11,6 +11,10 @@ type Feed struct {
 
 	Name string
 	URL  string
+
+	// Indicates feed error
+	Error  string
+	Active bool
 }
 
 func (f *Feed) validate() error {
@@ -36,6 +40,8 @@ func (db *DB) createFeed(f *Feed) error {
 	if err != nil {
 		return err
 	}
+
+	f.Active = true
 
 	return db.db.Create(f).Error
 }

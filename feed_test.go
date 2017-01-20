@@ -2,6 +2,10 @@ package main
 
 import "testing"
 
+var exampleFeed = Feed{
+	Title: "Example Feed",
+	Link:  "http://example.com/rss"}
+
 var validateTests = []struct {
 	feed  *Feed
 	valid bool

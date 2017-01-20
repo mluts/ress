@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-// App represents
+// App represents the application API
 type App struct {
 	db *DB
 }
@@ -48,9 +48,10 @@ func (a *App) createFeed(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) showFeed(w http.ResponseWriter, r *http.Request) {
+	var feed Feed
+
 	vars := mux.Vars(r)
 	id := vars["id"]
-	feed := Feed{}
 
 	err := a.db.feed(&feed, id)
 	if err != nil {

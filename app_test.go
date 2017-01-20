@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
+	"strings"
 	tt "testing"
 )
 
@@ -41,9 +43,7 @@ func doRequest(method, target string, body []byte) *httptest.ResponseRecorder {
 func TestFeed_api_list(t *tt.T) {
 	clearDatabase()
 
-	feed := Feed{
-		Title: "The Title",
-		Link:  "http://example.com/rss"}
+	feed := exampleFeed
 
 	db.createFeed(&feed)
 
@@ -74,9 +74,7 @@ func TestFeed_api_create(t *tt.T) {
 	)
 	clearDatabase()
 
-	feed := Feed{
-		Title: "The Title",
-		Link:  "http://example.com/rss"}
+	feed := exampleFeed
 
 	b, err = json.Marshal(feed)
 	if err != nil {
@@ -99,5 +97,32 @@ func TestFeed_api_create(t *tt.T) {
 
 	if count != 1 {
 		t.Error("Expected to have 1 created feed but have", count)
+	}
+}
+
+func TestFeed_api_show(t *tt.T) {
+	clearDatabase()
+	feed := exampleFeed
+	err := app.db.createFeed(&feed)
+
+	if err != nil {
+		panic(err)
+	}
+
+	path := strings.Join([]string{
+		"/feeds",
+		strconv.Itoa(int(feed.ID))}, "/")
+
+	rec := doRequest("GET", path, nil)
+
+	if rec.Code != 200 {
+		t.Error("Expected to see status 200, but seeing", rec.Code)
+	}
+
+	feed2 := Feed{}
+	json.Unmarshal(rec.Body.Bytes(), &feed2)
+
+	if feed.ID != feed2.ID {
+		t.Error("Have wrong feed id", feed2.ID)
 	}
 }

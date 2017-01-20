@@ -126,3 +126,44 @@ func TestFeed_api_show(t *tt.T) {
 		t.Error("Have wrong feed id", feed2.ID)
 	}
 }
+
+func TestFeed_api_feed_items(t *tt.T) {
+	clearDatabase()
+	feed := exampleFeed
+	err := app.db.createFeed(&feed)
+
+	if err != nil {
+		panic(err)
+	}
+
+	for _, item := range []Item{Item{Title: "Item1"}, Item{Title: "Item2"}} {
+		err = db.createItem(&feed, &item)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	path := strings.Join([]string{
+		"/feeds",
+		strconv.Itoa(int(feed.ID)),
+		"items"}, "/")
+
+	rec := doRequest("GET", path, nil)
+
+	if rec.Code != 200 {
+		t.Error("Expected to see code 200, but have", rec.Code)
+		return
+	}
+
+	items := make([]Item, 0)
+	json.Unmarshal(rec.Body.Bytes(), &items)
+
+	if len(items) != 2 {
+		t.Error("Expected to have 2 items, but have", len(items))
+		return
+	}
+
+	if items[0].FeedID != feed.ID {
+		t.Errorf("Expected item feedID to eq %d, but have %d", feed.ID, items[0].FeedID)
+	}
+}

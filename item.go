@@ -32,3 +32,7 @@ func (db *DB) createItem(f *Feed, i *Item) error {
 func (db *DB) itemsCount(c *int) error {
 	return db.db.Model(&Item{}).Count(c).Error
 }
+
+func (db *DB) feedItems(f *Feed) error {
+	return db.db.Model(f).Related(&f.Items).Error
+}

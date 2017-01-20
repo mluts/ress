@@ -62,6 +62,30 @@ func (a *App) showFeed(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, feed)
 }
 
+func (a *App) feedItems(w http.ResponseWriter, r *http.Request) {
+	var (
+		feed Feed
+		err  error
+	)
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	err = a.db.feed(&feed, id)
+	if err != nil {
+		jsonError(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	err = a.db.feedItems(&feed)
+	if err != nil {
+		jsonError(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	jsonResponse(w, feed.Items)
+}
+
 func (a *App) handler() http.Handler {
 	var routes = []struct {
 		method  string
@@ -70,7 +94,8 @@ func (a *App) handler() http.Handler {
 	}{
 		{http.MethodGet, "/feeds", a.listFeeds},
 		{http.MethodPost, "/feeds", a.createFeed},
-		{http.MethodGet, "/feeds/{id:[0-9]+}", a.showFeed}}
+		{http.MethodGet, "/feeds/{id:[0-9]+}", a.showFeed},
+		{http.MethodGet, "/feeds/{id:[0-9]+}/items", a.feedItems}}
 
 	r := mux.NewRouter()
 

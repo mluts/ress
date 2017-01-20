@@ -32,7 +32,9 @@ func TestFeed_validate(t *testing.T) {
 }
 
 func TestFeed_create(t *testing.T) {
-	feed := Feed{Title: "The Title", Link: "url"}
+	clearDatabase()
+
+	feed := exampleFeed
 	err := db.createFeed(&feed)
 	if err != nil {
 		panic(err)
@@ -48,5 +50,33 @@ func TestFeed_create(t *testing.T) {
 
 	if len(feed.Error) != 0 {
 		t.Error("Feed should not contain errors")
+	}
+}
+
+func TestFeed_items(t *testing.T) {
+	var err error
+	clearDatabase()
+
+	feed := exampleFeed
+	err = db.createFeed(&feed)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, item := range []Item{Item{Title: "Item1"}, Item{Title: "Item2"}} {
+		err = db.createItem(&feed, &item)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if len(feed.Items) != 0 {
+		t.Error("Expected to have no items on feed")
+	}
+
+	db.feedItems(&feed)
+
+	if len(feed.Items) != 2 {
+		t.Error("Expected to have 2 items on feed, but have", len(feed.Items))
 	}
 }

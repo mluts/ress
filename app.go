@@ -19,7 +19,8 @@ type createFeedRequest struct {
 }
 
 func (a *App) listFeeds(w http.ResponseWriter, r *http.Request) {
-	feeds, err := a.db.allFeeds()
+	feeds := make([]Feed, 0)
+	err := a.db.allFeeds(&feeds)
 
 	if err != nil {
 		jsonError(w, err.Error(), http.StatusInternalServerError)

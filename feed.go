@@ -31,10 +31,8 @@ func (f *Feed) validate() error {
 	return nil
 }
 
-func (db *DB) allFeeds() ([]Feed, error) {
-	feeds := []Feed{}
-	err := db.db.Find(&feeds).Error
-	return feeds, err
+func (db *DB) allFeeds(f *[]Feed) error {
+	return db.db.Find(f).Error
 }
 
 func (db *DB) createFeed(f *Feed) error {
@@ -54,4 +52,8 @@ func (db *DB) feed(f *Feed, id interface{}) error {
 
 func (db *DB) feedsCount(c *int) error {
 	return db.db.Model(&Feed{}).Count(c).Error
+}
+
+func (db *DB) saveFeed(f *Feed) error {
+	return db.db.Save(f).Error
 }

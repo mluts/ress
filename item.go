@@ -36,3 +36,7 @@ func (db *DB) itemsCount(c *int) error {
 func (db *DB) feedItems(f *Feed) error {
 	return db.db.Model(f).Related(&f.Items).Error
 }
+
+func (db *DB) findItem(f *Feed, link string, i *Item) error {
+	return db.db.Model(f).Related(&f.Items).First(i, "link = ?", i.Link).Error
+}

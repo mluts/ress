@@ -1,14 +1,16 @@
 package main
 
-import "testing"
+import (
+	"github.com/jinzhu/gorm"
+	"testing"
+)
 
 func TestItem_create(t *testing.T) {
 	var err error
 
 	clearDatabase()
 
-	f := Feed{
-		Title: "The Name", Link: "The Link"}
+	f := exampleFeed
 	i := Item{}
 
 	err = db.createItem(&f, &i)
@@ -31,5 +33,31 @@ func TestItem_create(t *testing.T) {
 
 	if count != 1 {
 		t.Error("Expected count to be 1, but have ", count)
+	}
+}
+
+func TestItem_find(t *testing.T) {
+	var err error
+
+	clearDatabase()
+
+	f := exampleFeed
+	err = db.createFeed(&f)
+	if err != nil {
+		panic(err)
+	}
+
+	link := f.Link
+	i := Item{}
+
+	err = db.findItem(&f, link, &i)
+	if err != gorm.ErrRecordNotFound {
+		t.Error("Expected 'not found' eror, but have", err)
+	}
+
+	err = db.createItem(&f, &Item{})
+
+	if err != nil {
+		t.Error("Expected not to have error, but have", err)
 	}
 }

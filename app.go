@@ -15,14 +15,14 @@ type errorResponse struct {
 }
 
 type createFeedRequest struct {
-	Name, URL string
+	Title, Link string
 }
 
 func (a *App) listFeeds(w http.ResponseWriter, r *http.Request) {
 	feeds, err := a.db.allFeeds()
 
 	if err != nil {
-		jsonError(w, err.Error())
+		jsonError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -34,22 +34,51 @@ func (a *App) createFeed(w http.ResponseWriter, r *http.Request) {
 	err := decodeJSONRequest(&req, r)
 
 	if err != nil {
-		jsonError(w, err.Error())
+		jsonError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	err = a.db.createFeed(&Feed{
-		Name: req.Name,
-		URL:  req.URL})
+		Title: req.Title,
+		Link:  req.Link})
 
 	if err != nil {
-		jsonError(w, err.Error())
+		jsonError(w, err.Error(), http.StatusBadRequest)
 	}
 }
 
+func (a *App) showFeed(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	feed := Feed{}
+
+	err := a.db.feed(&feed, id)
+	if err != nil {
+		jsonError(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	jsonResponse(w, feed)
+}
+
 func (a *App) handler() http.Handler {
+	var routes = []struct {
+		method  string
+		path    string
+		handler func(w http.ResponseWriter, r *http.Request)
+	}{
+		{http.MethodGet, "/feeds", a.listFeeds},
+		{http.MethodPost, "/feeds", a.createFeed},
+		{http.MethodGet, "/feeds/{id:[0-9]+}", a.showFeed}}
+
 	r := mux.NewRouter()
-	r.HandleFunc("/feeds", a.listFeeds).Methods(http.MethodGet)
-	r.HandleFunc("/feeds", a.createFeed).Methods(http.MethodPost)
+
+	for _, route := range routes {
+		r.NewRoute().
+			Path(route.path).
+			Methods(route.method).
+			HandlerFunc(route.handler)
+	}
+
 	return r
 }

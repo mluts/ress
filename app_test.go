@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -27,19 +28,22 @@ func init() {
 
 func clearDatabase() {
 	db.db.Delete(&Feed{})
+	db.db.Delete(&Item{})
 }
 
 func doRequest(method, target string, body []byte) *httptest.ResponseRecorder {
-	req := httptest.NewRequest("GET", "/feeds", nil)
+	req := httptest.NewRequest(method, target, bytes.NewReader(body))
 	w := httptest.NewRecorder()
 	handler.ServeHTTP(w, req)
 	return w
 }
 
-func TestFeed_list(t *tt.T) {
+func TestFeed_api_list(t *tt.T) {
+	clearDatabase()
+
 	feed := Feed{
-		Name: "The Name",
-		URL:  "http://example.com/rss"}
+		Title: "The Title",
+		Link:  "http://example.com/rss"}
 
 	db.createFeed(&feed)
 
@@ -53,13 +57,47 @@ func TestFeed_list(t *tt.T) {
 	json.Unmarshal(rec.Body.Bytes(), &feeds)
 	feed2 := feeds[0]
 
-	if feed.Name != feed2.Name {
-		t.Error("Name is not equal", feed.Name, feed2.Name)
+	if feed.Title != feed2.Title {
+		t.Error("Title is not equal", feed.Title, feed2.Title)
 	}
 
-	if feed.URL != feed2.URL {
-		t.Error("URL is not equal", feed.URL, feed2.URL)
+	if feed.Link != feed2.Link {
+		t.Error("Link is not equal", feed.Link, feed2.Link)
 	}
+}
 
+func TestFeed_api_create(t *tt.T) {
+	var (
+		err   error
+		b     []byte
+		count int
+	)
 	clearDatabase()
+
+	feed := Feed{
+		Title: "The Title",
+		Link:  "http://example.com/rss"}
+
+	b, err = json.Marshal(feed)
+	if err != nil {
+		panic(err)
+	}
+
+	app.db.feedsCount(&count)
+
+	if count != 0 {
+		t.Error("Expected to have 0 feeds in db, but have", count)
+	}
+
+	rec := doRequest("POST", "/feeds", b)
+
+	if rec.Code != 200 {
+		t.Error("Expected to have code 200, but have", rec.Code)
+	}
+
+	app.db.feedsCount(&count)
+
+	if count != 1 {
+		t.Error("Expected to have 1 created feed but have", count)
+	}
 }

@@ -13,7 +13,7 @@ func decodeJSONRequest(v interface{}, r *http.Request) error {
 	return err
 }
 
-func jsonError(w http.ResponseWriter, msg string) {
+func jsonError(w http.ResponseWriter, msg string, status int) {
 	b, err := json.Marshal(errorResponse{msg})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

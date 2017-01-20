@@ -18,6 +18,7 @@ func OpenDatabase(dialect, dest string) (*DB, error) {
 	}
 
 	db.AutoMigrate(&Feed{})
+	db.AutoMigrate(&Item{})
 
 	return &DB{db}, nil
 }

@@ -9,21 +9,23 @@ import (
 type Feed struct {
 	gorm.Model
 
-	Name string
-	URL  string
+	Title string
+	Link  string
 
 	// Indicates feed error
 	Error  string
 	Active bool
+
+	Items []Item
 }
 
 func (f *Feed) validate() error {
-	if len(f.Name) == 0 {
-		return errors.New("Name can't be blank")
+	if len(f.Title) == 0 {
+		return errors.New("Title can't be blank")
 	}
 
-	if len(f.URL) == 0 {
-		return errors.New("URL can't be blank")
+	if len(f.Link) == 0 {
+		return errors.New("Link can't be blank")
 	}
 
 	return nil
@@ -44,4 +46,12 @@ func (db *DB) createFeed(f *Feed) error {
 	f.Active = true
 
 	return db.db.Create(f).Error
+}
+
+func (db *DB) feed(f *Feed, id interface{}) error {
+	return db.db.First(f, id).Error
+}
+
+func (db *DB) feedsCount(c *int) error {
+	return db.db.Model(&Feed{}).Count(c).Error
 }

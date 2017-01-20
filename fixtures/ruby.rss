@@ -1,0 +1,914 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Ruby News</title>
+    <link>https://www.ruby-lang.org/en/feeds/news.rss</link>
+    <language>en-US</language>
+    <ttl>40</ttl>
+    <description>The latest news from ruby-lang.org.</description>
+    
+    <item>
+      <title>Ruby 2.4.0 Released</title>
+      <description>&lt;p&gt;We are pleased to announce the release of Ruby 2.4.0.&lt;/p&gt;
+
+&lt;p&gt;Ruby 2.4.0 is the first stable release of the Ruby 2.4 series.
+It introduces many new features, for example:&lt;/p&gt;
+
+&lt;h2&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/12142&quot;&gt;Introduce hash table improvement (by Vladimir Makarov)&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;Improve the internal structure of hash table (st_table) by introducing open addressing
+and an inclusion order array.
+This improvement has been discussed with many people, especially with Yura Sokolov.&lt;/p&gt;
+
+&lt;h2&gt;Binding#irb: Start a REPL session similar to &lt;code&gt;binding.pry&lt;/code&gt;&lt;/h2&gt;
+
+&lt;p&gt;While you are debugging, you may often use &lt;code&gt;p&lt;/code&gt; to see the value of variables.
+With &lt;a href=&quot;https://github.com/pry/pry&quot;&gt;pry&lt;/a&gt; you can use &lt;code&gt;binding.pry&lt;/code&gt; in your application
+to launch a REPL and run any Ruby code.
+&lt;a href=&quot;https://github.com/ruby/ruby/commit/493e48897421d176a8faf0f0820323d79ecdf94a&quot;&gt;r56624&lt;/a&gt;
+introduces &lt;code&gt;binding.irb&lt;/code&gt; which behaves like that with irb.&lt;/p&gt;
+
+&lt;h2&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/12005&quot;&gt;Unify Fixnum and Bignum into Integer&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;Though &lt;a href=&quot;http://www.iso.org/iso/iso_catalogue/catalogue_tc/catalogue_detail.htm?csnumber=59579&quot;&gt;ISO/IEC 30170:2012&lt;/a&gt;
+doesn’t specify details of the Integer class,
+Ruby had two visible Integer classes: Fixnum and Bignum.
+Ruby 2.4 unifies them into Integer.
+All C extensions which touch the Fixnum or Bignum class need to be fixed.&lt;/p&gt;
+
+&lt;p&gt;See also &lt;a href=&quot;https://bugs.ruby-lang.org/issues/12005&quot;&gt;the ticket&lt;/a&gt; and &lt;a href=&quot;http://www.a-k-r.org/pub/2016-09-08-rubykaigi-unified-integer.pdf&quot;&gt;akr’s slides&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/10085&quot;&gt;String supports Unicode case mappings&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;&lt;code&gt;String/Symbol#upcase/downcase/swapcase/capitalize(!)&lt;/code&gt; now handle
+Unicode case mappings instead of only ASCII case mappings.&lt;/p&gt;
+
+&lt;h2&gt;Performance improvements&lt;/h2&gt;
+
+&lt;p&gt;Ruby 2.4 also contains the following performance improvements including
+language changes:&lt;/p&gt;
+
+&lt;h3&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/12172&quot;&gt;Array#max, Array#min&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;&lt;code&gt;[x, y].max&lt;/code&gt; and &lt;code&gt;[x, y].min&lt;/code&gt; are optimized to not create a temporary array
+under certain conditions.&lt;/p&gt;
+
+&lt;h3&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/8110&quot;&gt;Regexp#match?&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;Added &lt;code&gt;Regexp#match?&lt;/code&gt;, which executes a regexp match without creating
+a back reference object and changing &lt;code&gt;$~&lt;/code&gt; to reduce object allocation.&lt;/p&gt;
+
+&lt;h3&gt;Other performance improvements&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/12274&quot;&gt;speed up instance variable access&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;Debugging&lt;/h2&gt;
+
+&lt;h3&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/6647&quot;&gt;Thread#report_on_exception and Thread.report_on_exception&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;Ruby ignores exceptions in threads unless another thread explicitly joins them.
+With &lt;code&gt;report_on_exception = true&lt;/code&gt;,
+you can notice if a thread has died due to an unhandled exception.&lt;/p&gt;
+
+&lt;p&gt;Send us feedback what should be the default for &lt;code&gt;report_on_exception&lt;/code&gt;
+and about report-on-GC, which shows a report when a thread is
+garbage collected without join.&lt;/p&gt;
+
+&lt;h3&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/8214&quot;&gt;Thread deadlock detection now shows threads with their backtrace and dependency&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;Ruby has deadlock detection around waiting threads, but its report doesn’t
+include enough information for debugging.
+Ruby 2.4’s deadlock detection shows threads with their backtrace and
+dependent threads.&lt;/p&gt;
+
+&lt;h2&gt;Other notable changes since 2.3&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Support OpenSSL 1.1.0 (drop support for 0.9.7 or prior)&lt;/li&gt;
+  &lt;li&gt;ext/tk is now removed from stdlib &lt;a href=&quot;https://bugs.ruby-lang.org/issues/8539&quot;&gt;Feature #8539&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;XMLRPC is now removed from stdlib &lt;a href=&quot;https://bugs.ruby-lang.org/issues/12160&quot;&gt;Feature #12160&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;See &lt;a href=&quot;https://github.com/ruby/ruby/blob/v2_4_0/NEWS&quot;&gt;NEWS&lt;/a&gt;
+or commit logs for details.&lt;/p&gt;
+
+&lt;p&gt;With those changes,
+&lt;a href=&quot;https://github.com/ruby/ruby/compare/v2_3_0...v2_4_0&quot;&gt;2523 files changed, 289129 insertions(+), 84670 deletions(-)&lt;/a&gt;
+since Ruby 2.3.0!&lt;/p&gt;
+
+&lt;p&gt;Merry Christmas, Happy Holidays, and enjoy programming with Ruby 2.4!&lt;/p&gt;
+
+&lt;h2&gt;Download&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0.tar.bz2&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0.tar.bz2&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   12572424 bytes
+SHA1:   944d2588308391b20a89642472454d1dfe7b2360
+SHA256: 440bbbdc49d08d3650f340dccb35986d9399177ad69a204def56e5d3954600cf
+SHA512: bef7bb53f63fb74073d071cc125fb67b273ed0779ef43c2d2969089b9ca21fff1bd012281c5b748f7a3c24dd26e71730d7248c05a01cb23ab2089eb4d02115fe
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0.tar.gz&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0.tar.gz&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   14104044 bytes
+SHA1:   d44a3c50a0e742341ed3033d5db79d865151a4f4
+SHA256: 152fd0bd15a90b4a18213448f485d4b53e9f7662e1508190aa5b702446b29e3d
+SHA512: 21c9f596b42dd9cba7a53963a59fed0c2e0c1eb960a4ac7087ea3eaa991ce9252d32639e1edcb75b1d709bc07c4820a6dc336ab427d0643c6e6498e0eacdbc8b
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0.tar.xz&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0.tar.xz&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   9906880 bytes
+SHA1:   038804bbd0e77508dd2510b729a9f3b325489b2e
+SHA256: 3a87fef45cba48b9322236be60c455c13fd4220184ce7287600361319bb63690
+SHA512: 975a5388592adc038461e0acebb6c0efee242891b2ea8621476401458efe2bc0fdd317d3bf99beb745b0b3808410efdff33862da29c95c027f457943721e3ab6
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0.zip&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0.zip&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   15758757 bytes
+SHA1:   29e1bab11551011718c35a51827edcb55bd656fc
+SHA256: 5c2bbfa26fd6a15a2d70961874b0f3a386206fcc5f698e240dd8b0c9f0f18c5e
+SHA512: 31d932372ce490eeac0a70bc8dcf842909a90435422398d069c05cf01d994936064b8f4e60879e28a8655c1296eb8e180e348cb95e001ed6ca73cda0ff77de23
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Posted by naruse on 25 Dec 2016&lt;/p&gt;</description>
+      <pubDate>Sun, 25 Dec 2016 00:00:00 +0000</pubDate>
+      <guid>https://www.ruby-lang.org/en/news/2016/12/25/ruby-2-4-0-released/</guid>
+      <link>https://www.ruby-lang.org/en/news/2016/12/25/ruby-2-4-0-released/</link>
+    </item>
+    
+    <item>
+      <title>Ruby 2.4.0-rc1 Released</title>
+      <description>&lt;p&gt;We are pleased to announce the release of Ruby 2.4.0-rc1.&lt;/p&gt;
+
+&lt;p&gt;Ruby 2.4.0-rc1 is the first release candidate of Ruby 2.4.0.
+This rc1 is released to get feedback from the community.
+Feel free to
+&lt;a href=&quot;https://bugs.ruby-lang.org/projects/ruby/wiki/HowToReport&quot;&gt;send feedback&lt;/a&gt;
+since you can still fix the features.&lt;/p&gt;
+
+&lt;h2&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/12142&quot;&gt;Introduce hash table improvement (by Vladimir Makarov)&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;Improve the internal structure of hash table (st_table) by introducing open addressing
+and an inclusion order array.
+This improvement has been discussed with many people, especially with Yura Sokolov.&lt;/p&gt;
+
+&lt;h2&gt;Binding#irb: Start a REPL session similar to &lt;code&gt;binding.pry&lt;/code&gt;&lt;/h2&gt;
+
+&lt;p&gt;While you are debugging, you may often use &lt;code&gt;p&lt;/code&gt; to see the value of variables.
+With &lt;a href=&quot;https://github.com/pry/pry&quot;&gt;pry&lt;/a&gt; you can use &lt;code&gt;binding.pry&lt;/code&gt; in your application
+to launch a REPL and run any Ruby code.
+&lt;a href=&quot;https://github.com/ruby/ruby/commit/493e48897421d176a8faf0f0820323d79ecdf94a&quot;&gt;r56624&lt;/a&gt;
+introduces &lt;code&gt;binding.irb&lt;/code&gt; which behaves like that with irb.&lt;/p&gt;
+
+&lt;h2&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/12005&quot;&gt;Unify Fixnum and Bignum into Integer&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;Though &lt;a href=&quot;http://www.iso.org/iso/iso_catalogue/catalogue_tc/catalogue_detail.htm?csnumber=59579&quot;&gt;ISO/IEC 30170:2012&lt;/a&gt;
+doesn’t specify details of the Integer class,
+Ruby had two visible Integer classes: Fixnum and Bignum.
+Ruby 2.4 unifies them into Integer.
+All C extensions which touch the Fixnum or Bignum class need to be fixed.&lt;/p&gt;
+
+&lt;p&gt;See also &lt;a href=&quot;https://bugs.ruby-lang.org/issues/12005&quot;&gt;the ticket&lt;/a&gt; and &lt;a href=&quot;http://www.a-k-r.org/pub/2016-09-08-rubykaigi-unified-integer.pdf&quot;&gt;akr’s slides&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/10085&quot;&gt;String supports Unicode case mappings&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;&lt;code&gt;String/Symbol#upcase/downcase/swapcase/capitalize(!)&lt;/code&gt; now handle
+Unicode case mappings instead of only ASCII case mappings.&lt;/p&gt;
+
+&lt;h2&gt;Performance improvements&lt;/h2&gt;
+
+&lt;p&gt;Ruby 2.4 also contains the following performance improvements including
+language changes:&lt;/p&gt;
+
+&lt;h3&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/12172&quot;&gt;Array#max, Array#min&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;&lt;code&gt;[x, y].max&lt;/code&gt; and &lt;code&gt;[x, y].min&lt;/code&gt; are optimized to not create a temporary array
+under certain conditions.&lt;/p&gt;
+
+&lt;h3&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/8110&quot;&gt;Regexp#match?&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;Added &lt;code&gt;Regexp#match?&lt;/code&gt;, which executes a regexp match without creating
+a back reference object and changing &lt;code&gt;$~&lt;/code&gt; to reduce object allocation.&lt;/p&gt;
+
+&lt;h3&gt;Other performance improvements&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/12274&quot;&gt;speed up instance variable access&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;Debugging&lt;/h2&gt;
+
+&lt;h3&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/6647&quot;&gt;Thread#report_on_exception and Thread.report_on_exception&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;Ruby ignores exceptions in threads unless another thread explicitly joins them.
+With &lt;code&gt;report_on_exception = true&lt;/code&gt;,
+you can notice if a thread has died due to an unhandled exception.&lt;/p&gt;
+
+&lt;p&gt;Send us feedback what should be the default for &lt;code&gt;report_on_exception&lt;/code&gt;
+and about report-on-GC, which shows a report when a thread is
+garbage collected without join.&lt;/p&gt;
+
+&lt;h3&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/8214&quot;&gt;Thread deadlock detection now shows threads with their backtrace and dependency&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;Ruby has deadlock detection around waiting threads, but its report doesn’t
+include enough information for debugging.
+Ruby 2.4’s deadlock detection shows threads with their backtrace and
+dependent threads.&lt;/p&gt;
+
+&lt;p&gt;Try and enjoy programming with Ruby 2.4.0-rc1, and
+&lt;a href=&quot;https://bugs.ruby-lang.org/projects/ruby/wiki/HowToReport&quot;&gt;send us feedback&lt;/a&gt;!&lt;/p&gt;
+
+&lt;h2&gt;Other notable changes since 2.3&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Support OpenSSL 1.1.0 (drop support for 0.9.7 or prior)&lt;/li&gt;
+  &lt;li&gt;ext/tk is now removed from stdlib &lt;a href=&quot;https://bugs.ruby-lang.org/issues/8539&quot;&gt;Feature #8539&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;XMLRPC is now removed from stdlib &lt;a href=&quot;https://bugs.ruby-lang.org/issues/12160&quot;&gt;Feature #12160&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;See &lt;a href=&quot;https://github.com/ruby/ruby/blob/v2_4_0_rc1/NEWS&quot;&gt;NEWS&lt;/a&gt;
+or commit logs for details.&lt;/p&gt;
+
+&lt;p&gt;With those changes,
+&lt;a href=&quot;https://github.com/ruby/ruby/compare/v2_3_0...v2_4_0_rc1&quot;&gt;2519 files changed, 288606 insertions(+), 83896 deletions(-)&lt;/a&gt;
+since Ruby 2.3.0!&lt;/p&gt;
+
+&lt;h2&gt;Download&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-rc1.tar.bz2&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-rc1.tar.bz2&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   12512729 bytes
+SHA1:   a0439652a97a2406b691e8a1e586e2cf08c258ba
+SHA256: 3b156b20f9df0dd62cbeeb8e57e66ea872d2a5b55fabdef1889650122bcc2ea7
+SHA512: b43902ac7794487197df55a45256819d2e7540b77f1ed4eb68def3e0473ee98860a400862075bafadbde74f242e1dfe36a18cd6fe05ac42aae1ea6dddc9978ce
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-rc1.tar.gz&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-rc1.tar.gz&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   14098505 bytes
+SHA1:   6b242f9ec7b908c9aa26e497440684ba06d86927
+SHA256: e41ada7650eed2a5800534d1201ba7c88f1627085659df994f47ab4c5e327745
+SHA512: 26d3c60483ce2d6eaabd7077085102fad6633f18cf5d772bacf6f563670030cb7bba22d54d8b7dfa5eac8b52990371c4a6ad1c095dff6f6b3a7bbe1a8ffb3754
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-rc1.tar.xz&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-rc1.tar.xz&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   9930088 bytes
+SHA1:   7c404e8bec9859f708927f7203d4f42187e678b7
+SHA256: 3f014b3186d10676da6c512d14c65db23ccc4bf200fed9d7c6f9a58fd1e3295b
+SHA512: 22e209e28da1f2394f50c0a7dd5d0d4d4c0c5a6b5b0b02260fad0267a0940b98f0e2b0f36a44f87d1612555cb3022f43cd136a5186c7f87650aa20264408d415
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-rc1.zip&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-rc1.zip&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   15785968 bytes
+SHA1:   7d82386434ccbb1701f2995286bf29c8b9179e01
+SHA256: 14e6910e36618cddffeb22bad5f1052f907dc31ec93d4aa945bca0905d8a52c4
+SHA512: 5dd89320d429e5bd5faf3709be7e5b70f7355304d6324d7ac13a69187e5f1446ad5988c8186bc33f4fea8934288294f9d16fea173f39b2b39967746c4b03d1d4
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;Release Comment&lt;/h2&gt;
+
+&lt;p&gt;See also the release schedule and other information:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/projects/ruby-trunk/wiki/ReleaseEngineering24&quot;&gt;ReleaseEngineering24&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Posted by naruse on 12 Dec 2016&lt;/p&gt;</description>
+      <pubDate>Mon, 12 Dec 2016 18:00:00 +0900</pubDate>
+      <guid>https://www.ruby-lang.org/en/news/2016/12/12/ruby-2-4-0-rc1-released/</guid>
+      <link>https://www.ruby-lang.org/en/news/2016/12/12/ruby-2-4-0-rc1-released/</link>
+    </item>
+    
+    <item>
+      <title>Ruby 2.3.3 Released</title>
+      <description>&lt;p&gt;Ruby 2.3.3 has been released.&lt;/p&gt;
+
+&lt;p&gt;This release contains a bug fix concerning Refinements and Module#prepend.
+The combined use of Module#refine and Module#prepend to the same class
+could cause an unexpected &lt;code&gt;NoMethodError&lt;/code&gt;.
+This is a regression on Ruby 2.3.2 released last week.
+See &lt;a href=&quot;https://bugs.ruby-lang.org/issues/12920&quot;&gt;Bug #12920&lt;/a&gt; for details.&lt;/p&gt;
+
+&lt;p&gt;There are some other bugfixes, too.
+See the &lt;a href=&quot;http://svn.ruby-lang.org/repos/ruby/tags/v2_3_3/ChangeLog&quot;&gt;ChangeLog&lt;/a&gt;
+for details.&lt;/p&gt;
+
+&lt;h2&gt;Download&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.3.tar.bz2&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.3.tar.bz2&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   14433673 bytes
+SHA1:   a8db9ce7f9110320f33b8325200e3ecfbd2b534b
+SHA256: 882e6146ed26c6e78c02342835f5d46b86de95f0dc4e16543294bc656594cc5b
+SHA512: 88f7782effd35bfe0b4c33140b5eb147d09b63fbb35b9c42d2200c010f387e2b70984ead1eca86569e8ec31f08b35289d440c0ca76b662dadb760f848e863d91
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.3.tar.gz&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.3.tar.gz&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   17813577 bytes
+SHA1:   1014ee699071aa2ddd501907d18cbe15399c997d
+SHA256: 241408c8c555b258846368830a06146e4849a1d58dcaf6b14a3b6a73058115b7
+SHA512: 80d9f3aaf1d60b9b2f4a6fb8866713ce1e201a3778ef9e16f1bedb7ccda35aefdd7babffbed1560263bd95ddcfe948f0c9967b5077a89db8b2e18cacc7323975
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.3.tar.xz&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.3.tar.xz&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   11444164 bytes
+SHA1:   f2318460606d410e80dd5c82862a93e5736534de
+SHA256: 1a4fa8c2885734ba37b97ffdb4a19b8fba0e8982606db02d936e65bac07419dc
+SHA512: 73dd6ed896ff52d953b153b2cab359c87953ea77521878f1ee16c1e217cc46bcb253100debe61ba631e6ffa0bc773e592d603a374508ed5189a311136ccd8d20
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.3.zip&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.3.zip&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   19862248 bytes
+SHA1:   f0723ce176a829c9c33c31cdab6eca6ce0aef73e
+SHA256: cbffda17fdb1bbd86dd36de093524b0a9b5c92e007fd60acac1c9804b429886e
+SHA512: 5f75b77962c9d01fe591d87e20900d71a54c737e0d1198fae437729f21a9af84278a91ee73e850b5f49361b3cbf48af7a0a3ed9920cce932b58fd8e2420d5b26
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;Release Comment&lt;/h2&gt;
+
+&lt;p&gt;Many committers, developers, and users who provided bug reports helped us to make this release.
+Thanks for their contributions.&lt;/p&gt;
+
+&lt;p&gt;Posted by nagachika on 21 Nov 2016&lt;/p&gt;</description>
+      <pubDate>Mon, 21 Nov 2016 10:30:00 +0000</pubDate>
+      <guid>https://www.ruby-lang.org/en/news/2016/11/21/ruby-2-3-3-released/</guid>
+      <link>https://www.ruby-lang.org/en/news/2016/11/21/ruby-2-3-3-released/</link>
+    </item>
+    
+    <item>
+      <title>Ruby 2.3.2 Released</title>
+      <description>&lt;p&gt;Ruby 2.3.2 has been released.&lt;/p&gt;
+
+&lt;p&gt;This is a TEENY version release of the stable 2.3 series.&lt;/p&gt;
+
+&lt;p&gt;This release contains an update to RubyGems 2.5.2
+and updates of the included SSL certificates.&lt;/p&gt;
+
+&lt;p&gt;There are many bugfixes, too.
+See the &lt;a href=&quot;http://svn.ruby-lang.org/repos/ruby/tags/v2_3_2/ChangeLog&quot;&gt;ChangeLog&lt;/a&gt;
+for details.&lt;/p&gt;
+
+&lt;h2&gt;Download&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.2.tar.bz2&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.2.tar.bz2&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   14428572 bytes
+SHA1:   7adc23d308d335486a03f0099dad2b2f44b8a4a8
+SHA256: e6ce83d46819c4120c9295ff6b36b90393dd5f6bef3bb117a06d7399c11fc7c0
+SHA512: 78699bae5b0a2382a58f9d51f7d891341f00ad3a90d9ca06b68b1b245cf5acebc3a82133e39bf6a412ac999a5c0f778a0dab177c2569ffbee085ffff6f6ec38e
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.2.tar.gz&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.2.tar.gz&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   17814200 bytes
+SHA1:   baef56b27941bfbfac6e2cd005b686d320c7f124
+SHA256: 8d7f6ca0f16d77e3d242b24da38985b7539f58dc0da177ec633a83d0c8f5b197
+SHA512: 833e76555c72fd142d89701715e6c6d838121347c4c7aa857478ba1e8f7596aa7c4fd1950046322747e46db041288747e4c1943cf9b13e064c6e85ee60d6515a
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.2.tar.xz&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.2.tar.xz&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   11420276 bytes
+SHA1:   b7c780dbfc34b5baea116504ae700f68c92379a0
+SHA256: 5c78f311045ce48160092160444dec2744941a5e37d7865032978bd5bf392f0c
+SHA512: f2e602281cbcfad81b8197b9555bf637a1ef34f51dbc7548e5e0c5996ab1b7db5bd9eeb902128d37eed90f39b559c569aa75f2b29fe5f65085be65a63206fd72
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.2.zip&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.2.zip&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   19861601 bytes
+SHA1:   1ac64ad7cb1ed9004101812f5b707c151570dd84
+SHA256: b8ad5b47fad22610476a4abc1c32b8e558265f9b20a5865a12836709028cbd76
+SHA512: 8a794c8eed53380b026b150b0ce176af2a6ba278d5f7a5067e27615940ae85b6af28ac7187adc5d7af04c82442271ed0d8530d9fe751810ecc6c75340f81bd03
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;Release Comment&lt;/h2&gt;
+
+&lt;p&gt;Many committers, developers, and users who provided bug reports helped us to make this release.
+Thanks for their contributions.&lt;/p&gt;
+
+&lt;p&gt;Posted by nagachika on 15 Nov 2016&lt;/p&gt;</description>
+      <pubDate>Tue, 15 Nov 2016 12:00:00 +0000</pubDate>
+      <guid>https://www.ruby-lang.org/en/news/2016/11/15/ruby-2-3-2-released/</guid>
+      <link>https://www.ruby-lang.org/en/news/2016/11/15/ruby-2-3-2-released/</link>
+    </item>
+    
+    <item>
+      <title>Ruby 2.2.6 Released</title>
+      <description>&lt;p&gt;Ruby 2.2.6 has been released.&lt;/p&gt;
+
+&lt;p&gt;This release includes new SSL certificates for RubyGems.
+And, this also includes about 80 bug fixes after the previous release.
+See the &lt;a href=&quot;http://svn.ruby-lang.org/repos/ruby/tags/v2_2_6/ChangeLog&quot;&gt;ChangeLog&lt;/a&gt;
+for details.&lt;/p&gt;
+
+&lt;h2&gt;Download&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.2/ruby-2.2.6.tar.bz2&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.2/ruby-2.2.6.tar.bz2&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   13378616 bytes
+SHA1:   67b15fcc394bb1ffb5a7e926dcd6222d8e988188
+SHA256: e845ba41ea3525aafaa4094212f1eadc57392732232b67b4394a7e0f046dddf7
+SHA512: 7a93f72d236521ac28c8a0bc0c73cf805797a8813d22e02f42c5fc05dd39f6e422817272e0db6a24c245f6f97ad4b2b412a9a47ac50156ab186df596918a5f34
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.2/ruby-2.2.6.tar.gz&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.2/ruby-2.2.6.tar.gz&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   16663387 bytes
+SHA1:   a5aaf19694470e543c8216e3f1189e48b6dbb0da
+SHA256: de8e192791cb157d610c48a9a9ff6e7f19d67ce86052feae62b82e3682cc675f
+SHA512: 221ea2d18ff23e65539ee184e09ef78643e46266a0ca18ccd2cb251970a6c057b843363f7c97541b2a6e68e1c3c41a36e2ae5c8218da888e0429473504abf66d
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.2/ruby-2.2.6.tar.xz&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.2/ruby-2.2.6.tar.xz&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   10487776 bytes
+SHA1:   6248eb97cbb5533009ef91c100d42e72af283f16
+SHA256: 9414ecc0d09cf71c9a24e8dc82fcc87919ac7359fb08db2791d6c32bfd157339
+SHA512: a2cfde1c6df4df6b996f8d86c52b255fd43b469f8b9f0d7a81ce5f4de949a67025d8bead4ce61f03263eb6a8378b156b843f97b429208afaa1d3bfd0a7af4ef4
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.2/ruby-2.2.6.zip&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.2/ruby-2.2.6.zip&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   18506149 bytes
+SHA1:   6e207a91f13e301379d4fd37b7af847808185e41
+SHA256: 71bafc98c0b6f7b70cd79473952060e9b9fc36c8d57ee21c6b775451a16e6f9a
+SHA512: dfce7a0e1c3e3d64490dfad101897e8aaacb6f1c0b193a97a38a4288532ec65464796de898685497ba35f199ed6d8eeaf9bb84d31cab0ea4cfd762466597a840
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;Release Comment&lt;/h2&gt;
+
+&lt;p&gt;Thanks to everyone who helped with this release.&lt;/p&gt;
+
+&lt;p&gt;The maintenance of Ruby 2.2, including this release,
+is based on the “Agreement for the Ruby stable version” of the
+&lt;a href=&quot;http://www.ruby.or.jp/&quot;&gt;Ruby Association&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Posted by usa on 15 Nov 2016&lt;/p&gt;</description>
+      <pubDate>Tue, 15 Nov 2016 12:00:00 +0000</pubDate>
+      <guid>https://www.ruby-lang.org/en/news/2016/11/15/ruby-2-2-6-released/</guid>
+      <link>https://www.ruby-lang.org/en/news/2016/11/15/ruby-2-2-6-released/</link>
+    </item>
+    
+    <item>
+      <title>Ruby 2.4.0-preview3 Released</title>
+      <description>&lt;p&gt;We are pleased to announce the release of Ruby 2.4.0-preview3.&lt;/p&gt;
+
+&lt;p&gt;Ruby 2.4.0-preview3 is the third preview of Ruby 2.4.0.
+This preview3 is released to get feedback from the community.
+Feel free to
+&lt;a href=&quot;https://bugs.ruby-lang.org/projects/ruby/wiki/HowToReport&quot;&gt;send feedback&lt;/a&gt;
+since you can still influence the features.&lt;/p&gt;
+
+&lt;h2&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/12142&quot;&gt;Introduce hash table improvement (by Vladimir Makarov)&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;Improve the internal structure of hash table (st_table) by introducing open addressing
+and an inclusion order array.
+This improvement has been discussed with many people, especially with Yura Sokolov.&lt;/p&gt;
+
+&lt;h2&gt;Binding#irb: Start a REPL session similar to &lt;code&gt;binding.pry&lt;/code&gt;&lt;/h2&gt;
+
+&lt;p&gt;While you are debugging, you may often use &lt;code&gt;p&lt;/code&gt; to see the value of variables.
+With &lt;a href=&quot;https://github.com/pry/pry&quot;&gt;pry&lt;/a&gt; you can use &lt;code&gt;binding.pry&lt;/code&gt; in your application
+to launch a REPL and run any Ruby code.
+&lt;a href=&quot;https://github.com/ruby/ruby/commit/493e48897421d176a8faf0f0820323d79ecdf94a&quot;&gt;r56624&lt;/a&gt;
+introduces &lt;code&gt;binding.irb&lt;/code&gt; which behaves like that with irb.&lt;/p&gt;
+
+&lt;h2&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/12005&quot;&gt;Unify Fixnum and Bignum into Integer&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;Though &lt;a href=&quot;http://www.iso.org/iso/iso_catalogue/catalogue_tc/catalogue_detail.htm?csnumber=59579&quot;&gt;ISO/IEC 30170:2012&lt;/a&gt;
+doesn’t specify details of the Integer class,
+Ruby had two visible Integer classes: Fixnum and Bignum.
+Ruby 2.4 unifies them into Integer.
+All C extensions which touch the Fixnum or Bignum class need to be fixed.&lt;/p&gt;
+
+&lt;p&gt;See also &lt;a href=&quot;https://bugs.ruby-lang.org/issues/12005&quot;&gt;the ticket&lt;/a&gt; and &lt;a href=&quot;http://www.a-k-r.org/pub/2016-09-08-rubykaigi-unified-integer.pdf&quot;&gt;akr’s slides&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/10085&quot;&gt;String supports Unicode case mappings&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;&lt;code&gt;String/Symbol#upcase/downcase/swapcase/capitalize(!)&lt;/code&gt; now handle
+Unicode case mappings instead of only ASCII case mappings.&lt;/p&gt;
+
+&lt;h2&gt;Performance improvements&lt;/h2&gt;
+
+&lt;p&gt;Ruby 2.4 also contains the following performance improvements including
+language changes:&lt;/p&gt;
+
+&lt;h3&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/12172&quot;&gt;Array#max, Array#min&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;&lt;code&gt;[x, y].max&lt;/code&gt; and &lt;code&gt;[x, y].min&lt;/code&gt; are optimized to not create a temporary array
+under certain conditions.&lt;/p&gt;
+
+&lt;h3&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/8110&quot;&gt;Regexp#match?&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;Added &lt;code&gt;Regexp#match?&lt;/code&gt;, which executes a regexp match without creating
+a back reference object and changing &lt;code&gt;$~&lt;/code&gt; to reduce object allocation.&lt;/p&gt;
+
+&lt;h3&gt;Other performance improvements&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/12274&quot;&gt;speed up instance variable access&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;Debugging&lt;/h2&gt;
+
+&lt;h3&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/6647&quot;&gt;Thread#report_on_exception and Thread.report_on_exception&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;Ruby ignores exceptions in threads unless another thread explicitly joins them.
+With &lt;code&gt;report_on_exception = true&lt;/code&gt;,
+you can notice if a thread has died due to an unhandled exception.&lt;/p&gt;
+
+&lt;p&gt;Send us feedback what should be the default for &lt;code&gt;report_on_exception&lt;/code&gt;
+and about report-on-GC, which shows a report when a thread is
+garbage collected without join.&lt;/p&gt;
+
+&lt;h3&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/8214&quot;&gt;Thread deadlock detection now shows threads with their backtrace and dependency&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;Ruby has deadlock detection around waiting threads, but its report doesn’t
+include enough information for debugging.
+Ruby 2.4’s deadlock detection shows threads with their backtrace and
+dependent threads.&lt;/p&gt;
+
+&lt;p&gt;Try and enjoy programming with Ruby 2.4.0-preview3, and
+&lt;a href=&quot;https://bugs.ruby-lang.org/projects/ruby/wiki/HowToReport&quot;&gt;send us feedback&lt;/a&gt;!&lt;/p&gt;
+
+&lt;h2&gt;Other notable changes since 2.3&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Support OpenSSL 1.1.0&lt;/li&gt;
+  &lt;li&gt;ext/tk is now removed from stdlib &lt;a href=&quot;https://bugs.ruby-lang.org/issues/8539&quot;&gt;Feature #8539&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;XMLRPC is now removed from stdlib &lt;a href=&quot;https://bugs.ruby-lang.org/issues/12160&quot;&gt;Feature #12160&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;See &lt;a href=&quot;https://github.com/ruby/ruby/blob/v2_4_0_preview3/NEWS&quot;&gt;NEWS&lt;/a&gt;
+and &lt;a href=&quot;https://github.com/ruby/ruby/blob/v2_4_0_preview3/ChangeLog&quot;&gt;ChangeLog&lt;/a&gt;
+for details.&lt;/p&gt;
+
+&lt;p&gt;With those changes,
+&lt;a href=&quot;https://github.com/ruby/ruby/compare/v2_3_0...v2_4_0_preview3&quot;&gt;2470 files changed, 283051 insertions(+), 64902 deletions(-)&lt;/a&gt;
+since Ruby 2.3.0!&lt;/p&gt;
+
+&lt;h2&gt;Download&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-preview3.tar.bz2&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-preview3.tar.bz2&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   12615328 bytes
+SHA1:   fefe49f6a7d5b642936c324f3b05aaac827355db
+SHA256: 305a2b2c627990e54965393f6eb1c442eeddfa149128ccdd9f4334e2e00a2a52
+SHA512: 6602c65a7b1e3bc680acc48217108f4335e84fdd74a9cf06f2e2f9ad00a2fccacf9fa035a912bc9d5cc3f0c7a5e21475971dfac37b0364311ef3645f25c7ddf9
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-preview3.tar.gz&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-preview3.tar.gz&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   15758023 bytes
+SHA1:   f6a6ec9f7fedad0bf4efee2e42801cc963f60dca
+SHA256: c35fe752ccfabf69bf48e6aab5111c25a05938b428936f780638e2111934c9dd
+SHA512: 68556d5252b6813b4c8eeba32733e940207f80694b5c5d20e69bf01eb52929ed2466496b05a895a5ad4831d430695e17624eb35b728b2d4d7cf02df756ac48b4
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-preview3.tar.xz&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-preview3.tar.xz&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   9957596 bytes
+SHA1:   66592b1a52f985638d639e7c3dd6bdda4e0569d0
+SHA256: b14be2b5c80bff0d6894ae2b37afdb17a968413e70236ec860f3e2d670b4c317
+SHA512: 5be20f0b2609745790c2b22f2228e69a840f63c34a117a1f95fd5436af211f0a6db2758d513d3e095a2d97c53c80793579cb2a1e00e70cf72c487a88c4a40d33
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-preview3.zip&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-preview3.zip&lt;/a&gt;&lt;/p&gt;
+
+    &lt;pre&gt;&lt;code&gt;SIZE:   17579012 bytes
+SHA1:   15d08cff952da3844ae54887b7f74b12d47c9ee2
+SHA256: b95a8f67fb7d6e852db77c5660c8878c14d68eb72c5501dac164a7e640ecb06e
+SHA512: fa15e1b7ab0cab56c9a580e1b1e2fee250ee0b9c59546079675a1931a36e37131bd37d64033c75e05d8e9d9fcc33ce7850254d3acaca2136cf3bd08b070244f0
+&lt;/code&gt;&lt;/pre&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;Release Comment&lt;/h2&gt;
+
+&lt;p&gt;See also the release schedule and other information:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/projects/ruby-trunk/wiki/ReleaseEngineering24&quot;&gt;ReleaseEngineering24&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Posted by naruse on 9 Nov 2016&lt;/p&gt;</description>
+      <pubDate>Wed, 09 Nov 2016 18:00:00 +0900</pubDate>
+      <guid>https://www.ruby-lang.org/en/news/2016/11/09/ruby-2-4-0-preview3-released/</guid>
+      <link>https://www.ruby-lang.org/en/news/2016/11/09/ruby-2-4-0-preview3-released/</link>
+    </item>
+    
+    <item>
+      <title>2017 Fukuoka Ruby Award Competition - Entries to be judged by Matz</title>
+      <description>&lt;p&gt;Dear Ruby Enthusiasts,&lt;/p&gt;
+
+&lt;p&gt;The Government of Fukuoka, Japan, together with “Matz” Matsumoto would like to
+invite you to enter the following Ruby competition. If you have developed an
+interesting Ruby program, please be encouraged to apply.&lt;/p&gt;
+
+&lt;p&gt;2017 Fukuoka Ruby Award Competition - Grand Prize - 1 Million Yen!&lt;/p&gt;
+
+&lt;p&gt;Entry Deadline: December 27, 2016&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://www.digitalfukuoka.jp/javascripts/kcfinder/upload/images/fukuokarubyaward2017.png&quot; alt=&quot;Fukuoka Ruby Award&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Matz and a group of panelists will select the winners of the Fukuoka Competition.
+The grand prize for the Fukuoka Competition is 1 million yen.
+Past grand prize winners include Rhomobile (USA) and APEC Climate Center (Korea).&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://myfukuoka.com/category/news/ruby-news/&quot;&gt;http://myfukuoka.com/category/news/ruby-news/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Programs entered in the competition do not have to be written entirely in Ruby
+but should take advantage of the unique characteristics of Ruby.&lt;/p&gt;
+
+&lt;p&gt;Projects must have been developed or completed within the past 12 months to be
+eligible. Please visit the following Fukuoka websites for additional details or
+to enter:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.digitalfukuoka.jp/events/114&quot;&gt;http://www.digitalfukuoka.jp/events/114&lt;/a&gt;
+or
+&lt;a href=&quot;http://myfukuoka.com/events/2017-fukuoka-ruby-award-guidelines-for-applicants/&quot;&gt;http://myfukuoka.com/events/2017-fukuoka-ruby-award-guidelines-for-applicants/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.digitalfukuoka.jp/uploads/event_detail/file/305/RubyAward_ApplicationForm_2017.doc&quot;&gt;http://www.digitalfukuoka.jp/uploads/event_detail/file/305/RubyAward_ApplicationForm_2017.doc&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Please email the application form to award@f-ruby.com.&lt;/p&gt;
+
+&lt;p&gt;This year, we have the following special prizes:&lt;/p&gt;
+
+&lt;p&gt;The winner of the AWS Prize will receive:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Amazon Fire Tablet (subject to change)&lt;/li&gt;
+  &lt;li&gt;AWS architect technical consultation&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The winner of the GMO Pepabo Prize will receive:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Gift basket filled with local foods and snacks (30,000 yen value)&lt;/li&gt;
+  &lt;li&gt;50,000 yen gift certificate toward domain services&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The winner of the IIJ GIO Prize will receive:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;IIJ GIO free coupon worth 500,000 yen (up to 6 months)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The winner of the Salesforce Prize will receive:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;salesforce.com novelty goods&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;“Matz will be testing and reviewing your source code thoroughly, so it’s very
+meaningful to apply! The competition is free to enter.”&lt;/p&gt;
+
+&lt;p&gt;Thanks!&lt;/p&gt;
+
+&lt;p&gt;Posted by Fukuoka Ruby on 20 Oct 2016&lt;/p&gt;</description>
+      <pubDate>Thu, 20 Oct 2016 00:00:00 +0000</pubDate>
+      <guid>https://www.ruby-lang.org/en/news/2016/10/20/fukuoka-ruby-award-2017/</guid>
+      <link>https://www.ruby-lang.org/en/news/2016/10/20/fukuoka-ruby-award-2017/</link>
+    </item>
+    
+    <item>
+      <title>Ruby 2.4.0-preview2 Released</title>
+      <description>&lt;p&gt;We are pleased to announce the release of Ruby 2.4.0-preview2.&lt;/p&gt;
+
+&lt;p&gt;Ruby 2.4.0-preview2 is the second preview of Ruby 2.4.0.
+This preview2 is released to get feedback from the community.
+Feel free to
+&lt;a href=&quot;https://bugs.ruby-lang.org/projects/ruby/wiki/HowToReport&quot;&gt;send feedback&lt;/a&gt;
+since you can still influence the features.&lt;/p&gt;
+
+&lt;h2&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/12005&quot;&gt;Unify Fixnum and Bignum into Integer&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;Though &lt;a href=&quot;http://www.iso.org/iso/iso_catalogue/catalogue_tc/catalogue_detail.htm?csnumber=59579&quot;&gt;ISO/IEC 30170:2012&lt;/a&gt;
+doesn’t specify details of the Integer class,
+Ruby had two visible Integer classes: Fixnum and Bignum.
+Ruby 2.4 unifies them into Integer.
+All C extensions which touch the Fixnum or Bignum class need to be fixed.&lt;/p&gt;
+
+&lt;p&gt;See also &lt;a href=&quot;https://bugs.ruby-lang.org/issues/12005&quot;&gt;the ticket&lt;/a&gt; and &lt;a href=&quot;http://www.a-k-r.org/pub/2016-09-08-rubykaigi-unified-integer.pdf&quot;&gt;akr’s slides&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/10085&quot;&gt;String supports Unicode case mappings&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;&lt;code&gt;String/Symbol#upcase/downcase/swapcase/capitalize(!)&lt;/code&gt; now handle
+Unicode case mappings instead of only ASCII case mappings.&lt;/p&gt;
+
+&lt;h2&gt;Performance improvements&lt;/h2&gt;
+
+&lt;p&gt;Ruby 2.4 also contains the following performance improvements including
+language changes:&lt;/p&gt;
+
+&lt;h3&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/12172&quot;&gt;Array#max, Array#min&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;&lt;code&gt;[x, y].max&lt;/code&gt; and &lt;code&gt;[x, y].min&lt;/code&gt; are optimized to not create a temporary array
+under certain conditions.&lt;/p&gt;
+
+&lt;h3&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/8110&quot;&gt;Regexp#match?&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;Added &lt;code&gt;Regexp#match?&lt;/code&gt;, which executes a regexp match without creating
+a back reference object and changing &lt;code&gt;$~&lt;/code&gt; to reduce object allocation.&lt;/p&gt;
+
+&lt;h3&gt;Other performance improvements&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/12274&quot;&gt;speed up instance variable access&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;Debugging&lt;/h2&gt;
+
+&lt;h3&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/6647&quot;&gt;Thread#report_on_exception and Thread.report_on_exception&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;Ruby ignores exceptions in threads unless another thread explicitly joins them.
+With &lt;code&gt;report_on_exception = true&lt;/code&gt;,
+you can notice if a thread has died due to an unhandled exception.&lt;/p&gt;
+
+&lt;p&gt;Send us feedback what should be the default for &lt;code&gt;report_on_exception&lt;/code&gt;
+and about report-on-GC, which shows a report when a thread is
+garbage collected without join.&lt;/p&gt;
+
+&lt;h3&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/issues/8214&quot;&gt;Thread deadlock detection now shows threads with their backtrace and dependency&lt;/a&gt;&lt;/h3&gt;
+
+&lt;p&gt;Ruby has deadlock detection around waiting threads, but its report doesn’t
+include enough information for debugging.
+Ruby 2.4’s deadlock detection shows threads with their backtrace and
+dependent threads.&lt;/p&gt;
+
+&lt;p&gt;Try and enjoy programming with Ruby 2.4.0-preview2, and
+&lt;a href=&quot;https://bugs.ruby-lang.org/projects/ruby/wiki/HowToReport&quot;&gt;send us feedback&lt;/a&gt;!&lt;/p&gt;
+
+&lt;h2&gt;Other notable changes since 2.3&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Support OpenSSL 1.1.0&lt;/li&gt;
+  &lt;li&gt;ext/tk is now removed from stdlib &lt;a href=&quot;https://bugs.ruby-lang.org/issues/8539&quot;&gt;Feature #8539&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;See &lt;a href=&quot;https://github.com/ruby/ruby/blob/v2_4_0_preview2/NEWS&quot;&gt;NEWS&lt;/a&gt;
+and &lt;a href=&quot;https://github.com/ruby/ruby/blob/v2_4_0_preview2/ChangeLog&quot;&gt;ChangeLog&lt;/a&gt;
+for details.&lt;/p&gt;
+
+&lt;p&gt;With those changes,
+&lt;a href=&quot;https://github.com/ruby/ruby/compare/v2_3_0...v2_4_0_preview2&quot;&gt;2353 files changed, 289057 insertions(+), 73847 deletions(-)&lt;/a&gt;
+since Ruby 2.3.0!&lt;/p&gt;
+
+&lt;h2&gt;Download&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-preview2.tar.bz2&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-preview2.tar.bz2&lt;/a&gt;&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;SIZE:   12463225 bytes&lt;/li&gt;
+      &lt;li&gt;SHA1:   95a501624f1cf4bb0785d3e17afd0ad099f66385&lt;/li&gt;
+      &lt;li&gt;SHA256: 2224c55b2d87b5c0f08d23a4618e870027dbc1cffbfb4a05efd19eac4ff4cf1d&lt;/li&gt;
+      &lt;li&gt;SHA512: 0c9a59a2f57a99c4ee8539a30f41da1de7547566203f89d856e1be9dbb44365754e6c470145dc9336eb324e0feb2f53d9fef18a1564968ac21f9ee528905949f&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-preview2.tar.gz&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-preview2.tar.gz&lt;/a&gt;&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;SIZE:   15586514 bytes&lt;/li&gt;
+      &lt;li&gt;SHA1:   492a13c4ddc1c0c218433acb00dcf7ddeef96fe0&lt;/li&gt;
+      &lt;li&gt;SHA256: fec544836428aada2dc593a8cc42ce330798a805e49ecb807a0e21b386fd0b14&lt;/li&gt;
+      &lt;li&gt;SHA512: 5a3de852a7611e79f38219ed7bb13772aaabb25538ca843d38743180a0cc939a4e34c008b61d578da785285196b6b8882270bddc17cbed481237db8afa4c54e4&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-preview2.tar.xz&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-preview2.tar.xz&lt;/a&gt;&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;SIZE:   9886832 bytes&lt;/li&gt;
+      &lt;li&gt;SHA1:   95d5fd7d54d86497194f69ec433755a517dcde8f&lt;/li&gt;
+      &lt;li&gt;SHA256: 6c2d25bedc50c2f19b0e349f0ffd9b9a83000d9cb6a677bf5372fb493d33e16a&lt;/li&gt;
+      &lt;li&gt;SHA512: b9bd898d17583103ee61b4764ac86eb62c9661fca1f41ff0d06a15965a0a1ba581491d4b8a342e527d63e102b6ddcb2acebdabe5b246409ce9711e13f9428d5b&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-preview2.zip&quot;&gt;https://cache.ruby-lang.org/pub/ruby/2.4/ruby-2.4.0-preview2.zip&lt;/a&gt;&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;SIZE:   17401564 bytes&lt;/li&gt;
+      &lt;li&gt;SHA1:   5f3a5b2fd03f70d49e74ec36be3e0c110f6c17cc&lt;/li&gt;
+      &lt;li&gt;SHA256: 4d0e466148283ad52208b1e1b70b018aefb7fa95b490fc862d5ea4ca284ecdd2&lt;/li&gt;
+      &lt;li&gt;SHA512: 0ef2098d995238580245a4bcee843641199c1194189be13614611e2ffec329278072319a799d409eaf13b1cff45f05a0eae02d9ea8ccc69058fa49e03eca0130&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;Release Comment&lt;/h2&gt;
+
+&lt;p&gt;See also the release schedule and other information:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/projects/ruby-trunk/wiki/ReleaseEngineering24&quot;&gt;ReleaseEngineering24&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Posted by naruse on 8 Sep 2016&lt;/p&gt;</description>
+      <pubDate>Thu, 08 Sep 2016 18:00:00 +0900</pubDate>
+      <guid>https://www.ruby-lang.org/en/news/2016/09/08/ruby-2-4-0-preview2-released/</guid>
+      <link>https://www.ruby-lang.org/en/news/2016/09/08/ruby-2-4-0-preview2-released/</link>
+    </item>
+    
+    <item>
+      <title>ConFoo Montreal 2017 is looking for Ruby speakers</title>
+      <description>&lt;p&gt;Want to get your web development ideas in front of a live audience? The &lt;a href=&quot;https://confoo.ca/en/yul2017/call-for-papers&quot;&gt;call for papers&lt;/a&gt; for the ConFoo Montreal 2017 conference is open! If you have a burning desire to hold forth about Ruby, databases, JavaScript, or any other web development topics, ConFoo wants to see your proposals.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://confoo.ca/images/propaganda/yul2017/en/like.png&quot; alt=&quot;ConFoo - Developer Conference&quot; style=&quot;border:0; float:right; margin-left:20px;&quot; width=&quot;180&quot; height=&quot;130&quot; /&gt;
+The window is open only from August 21 to September 20, 2016, so hurry. An added benefit: If your proposal is selected and you live outside of the Montreal area, ConFoo will cover your travel and hotel.&lt;/p&gt;
+
+&lt;p&gt;You’ll have 45 minutes to wow the crowd, with 35 minutes for your topic and 10 minutes for Q&amp;amp;A. ConFoo can’t wait to see your proposals. Knock us out!&lt;/p&gt;
+
+&lt;p&gt;ConFoo Montreal will be held on March 8-10, 2017. For those of you who already know about our conference, be aware that this annual tradition will still be running in addition to ConFoo Vancouver. Visit &lt;a href=&quot;https://confoo.ca/en&quot;&gt;ConFoo’s site&lt;/a&gt; to learn more about both events.&lt;/p&gt;
+
+
+&lt;p&gt;Posted by afilina on 26 Aug 2016&lt;/p&gt;</description>
+      <pubDate>Fri, 26 Aug 2016 16:00:00 +0000</pubDate>
+      <guid>https://www.ruby-lang.org/en/news/2016/08/26/confoo-cfp/</guid>
+      <link>https://www.ruby-lang.org/en/news/2016/08/26/confoo-cfp/</link>
+    </item>
+    
+    <item>
+      <title>Ruby Prize 2016 nominations are now open</title>
+      <description>&lt;p&gt;Ruby Prize 2016 nominations are now being accepted for new and outstanding
+members in the Ruby community.&lt;/p&gt;
+
+&lt;p&gt;The Ruby Prize is given to recognize the efforts of remarkable activity and
+achievements in the Ruby Community. The prize will be awarded by the executive
+committee comprised of three parties, the Ruby Association, Nihon Ruby no Kai
+and Matsue City.&lt;/p&gt;
+
+&lt;p&gt;Ruby Prize winner and final nominee (1-2 people) will receive an award at the
+RubyWorld Conference 2016, to be held in Matsue, Japan on November 3rd &amp;amp; 4th.&lt;/p&gt;
+
+&lt;p&gt;In addition, the Ruby Prize winner will also be awarded 1 million yen
+(approx. 9,683 USD at exchange rates as of July 12, 2016).&lt;/p&gt;
+
+&lt;p&gt;Nominees will be selected by the following:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Recommendations from the “Prize Member” executive committee&lt;/li&gt;
+  &lt;li&gt;Recommendations from the general public (you).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Please see below for more details.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.ruby.or.jp/en/news/20160725.html&quot;&gt;Ruby Association: Now accepting nominations for the Ruby Prize Award 2016&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Posted by Ruby Association on 25 Jul 2016&lt;/p&gt;</description>
+      <pubDate>Mon, 25 Jul 2016 12:00:00 +0000</pubDate>
+      <guid>https://www.ruby-lang.org/en/news/2016/07/25/ruby-prize-2016/</guid>
+      <link>https://www.ruby-lang.org/en/news/2016/07/25/ruby-prize-2016/</link>
+    </item>
+    
+  </channel>
+</rss>

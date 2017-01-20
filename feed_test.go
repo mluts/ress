@@ -6,13 +6,13 @@ var validateTests = []struct {
 	feed  *Feed
 	valid bool
 }{
-	{feed: &Feed{Name: "", URL: ""},
+	{feed: &Feed{Title: "", Link: ""},
 		valid: false},
-	{feed: &Feed{Name: "Some Name", URL: ""},
+	{feed: &Feed{Title: "Some Title", Link: ""},
 		valid: false},
-	{feed: &Feed{Name: "", URL: "Some Name"},
+	{feed: &Feed{Title: "", Link: "Some Title"},
 		valid: false},
-	{feed: &Feed{Name: "Some Name", URL: "Some URL"},
+	{feed: &Feed{Title: "Some Title", Link: "Some Link"},
 		valid: true}}
 
 func TestFeed_validate(t *testing.T) {
@@ -28,7 +28,7 @@ func TestFeed_validate(t *testing.T) {
 }
 
 func TestFeed_create(t *testing.T) {
-	feed := Feed{Name: "The Name", URL: "url"}
+	feed := Feed{Title: "The Title", Link: "url"}
 	err := db.createFeed(&feed)
 	if err != nil {
 		panic(err)

@@ -2,12 +2,16 @@ package main
 
 import (
 	"github.com/gorilla/mux"
+	d "github.com/mluts/ress/downloader"
+	"github.com/mmcdole/gofeed"
+	"log"
 	"net/http"
 )
 
 // App represents the application API
 type App struct {
-	db *DB
+	db         *DB
+	downloader *d.Downloader
 }
 
 type errorResponse struct {
@@ -45,7 +49,10 @@ func (a *App) createFeed(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		jsonError(w, err.Error(), http.StatusBadRequest)
+		return
 	}
+
+	a.enqueueDownloads()
 }
 
 func (a *App) showFeed(w http.ResponseWriter, r *http.Request) {
@@ -85,6 +92,54 @@ func (a *App) feedItems(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsonResponse(w, feed.Items)
+}
+
+func (a *App) enqueueDownloads() {
+	feeds := []Feed{}
+	err := a.db.allFeeds(&feeds)
+
+	if err != nil {
+		log.Print("Failed to enqueue downloads due to error: ", err)
+		return
+	}
+
+	for _, feed := range feeds {
+		a.downloader.Download(feed.Link)
+	}
+}
+
+func (a *App) handleFeedDownload(url string, feed *gofeed.Feed, err error) {
+	var dberr error
+	f := Feed{}
+	dberr = a.db.db.Where("link = ?", url).First(&f).Error
+
+	if dberr != nil {
+		log.Print("Database error during feed fetching ", dberr)
+		a.downloader.Discard(url)
+		return
+	}
+
+	if err != nil {
+		a.downloader.Discard(url)
+		f.Error = err.Error()
+		f.Active = false
+		a.db.db.Save(&f)
+		return
+	}
+
+	for _, item := range feed.Items {
+		err := a.db.createItem(&f, &Item{
+			Title:       item.Title,
+			Description: item.Description,
+			Content:     item.Content,
+			Link:        item.Link,
+			Updated:     item.Updated,
+			Published:   item.Published})
+
+		if err != nil {
+			log.Print("Failed to create an item ", err)
+		}
+	}
 }
 
 func (a *App) handler() http.Handler {

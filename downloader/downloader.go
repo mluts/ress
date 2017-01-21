@@ -2,66 +2,67 @@ package downloader
 
 import (
 	"github.com/mmcdole/gofeed"
+	"log"
 	"time"
 )
 
-const concurrency = 3
-
 // The Downloader cares about feed download scheduling
 type Downloader struct {
-	period  time.Duration
-	urls    map[string]bool
+	period   time.Duration
+	shutDown bool
+
+	urls    map[string]chan int
 	handler Handler
 
-	jobsChan chan string
-	active   bool
+	pool chan int
 }
 
 // Handler is called with downloaded feed data time after time
 type Handler func(url string, feed *gofeed.Feed, err error)
 
 // New initializes Downloader
-func New(period time.Duration, h Handler) *Downloader {
+func New(period time.Duration, poolSize uint, h Handler) *Downloader {
 	return &Downloader{
 		period:  period,
 		handler: h,
-		urls:    make(map[string]bool)}
+		urls:    make(map[string]chan int),
+		pool:    make(chan int, poolSize)}
 }
 
 // Download given the url in future
 func (d *Downloader) Download(url string) {
-	d.urls[url] = true
+	d.urls[url] = make(chan int, 1)
 }
 
 // Serve starts downloading urls, blocks until Cancel() will not be called
 func (d *Downloader) Serve() {
-	d.active = true
-	d.jobsChan = make(chan string)
-	defer close(d.jobsChan)
+	d.shutDown = false
 
-	for i := 0; i < concurrency; i++ {
-		go d.serve()
-	}
-
-	for d.active {
+	for !d.shutDown {
 		for url := range d.urls {
-			d.jobsChan <- url
+			if len(d.urls[url]) > 0 {
+				continue
+			}
+
+			d.pool <- 1
+			d.urls[url] <- 1
+			go d.download(url)
 		}
 		time.Sleep(d.period)
 	}
 }
 
-func (d *Downloader) serve() {
-	for {
-		if url, ok := <-d.jobsChan; ok {
-			d.download(url)
-		} else {
-			return
-		}
-	}
-}
-
 func (d *Downloader) download(url string) {
+	defer func() {
+		<-d.pool
+		<-d.urls[url]
+
+		if err := recover(); err != nil {
+			log.Print("Panic on url ", url)
+			log.Print(err)
+		}
+	}()
+
 	parser := gofeed.NewParser()
 	feed, err := parser.ParseURL(url)
 	d.handler(url, feed, err)
@@ -69,5 +70,5 @@ func (d *Downloader) download(url string) {
 
 // Cancel disables further downloading
 func (d *Downloader) Cancel() {
-	d.active = false
+	d.shutDown = true
 }

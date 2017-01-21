@@ -10,6 +10,7 @@ import (
 type downloader struct {
 	period time.Duration
 	db     *DB
+	t      *time.Ticker
 }
 
 func (d *downloader) start() {
@@ -18,7 +19,7 @@ func (d *downloader) start() {
 func (d *downloader) stop() {
 }
 
-func (d *downloader) parseFeeds() {
+func (d *downloader) downloadFeeds() {
 	parser := gofeed.NewParser()
 	feeds := []Feed{}
 
@@ -28,11 +29,11 @@ func (d *downloader) parseFeeds() {
 	}
 
 	for i := range feeds {
-		d.parseFeed(parser, &feeds[i])
+		d.downloadFeed(parser, &feeds[i])
 	}
 }
 
-func (d *downloader) parseFeed(p *gofeed.Parser, f *Feed) {
+func (d *downloader) downloadFeed(p *gofeed.Parser, f *Feed) {
 	if !f.Active {
 		return
 	}

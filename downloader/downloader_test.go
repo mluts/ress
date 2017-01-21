@@ -116,3 +116,28 @@ func TestDownload_bad_url(t *testing.T) {
 		}
 	})
 }
+
+func TestDownload_discard(t *testing.T) {
+	server := fixturesServer()
+	defer server.Close()
+
+	givenURL := strings.Join([]string{server.URL, "ruby.rss"}, "/")
+
+	var downloader *Downloader
+
+	quit := make(chan int)
+
+	downloader = New(time.Nanosecond, 3, func(url string, feed *gofeed.Feed, err error) {
+		downloader.Discard(url)
+
+		if downloader.urls[url] != nil {
+			t.Error("Url should be nil after discarding it")
+		}
+
+		quit <- 1
+	})
+
+	downloader.Download(givenURL)
+	go downloader.Serve()
+	<-quit
+}

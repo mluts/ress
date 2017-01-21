@@ -31,7 +31,14 @@ func New(period time.Duration, poolSize uint, h Handler) *Downloader {
 
 // Download given the url in future
 func (d *Downloader) Download(url string) {
-	d.urls[url] = make(chan int, 1)
+	if d.urls[url] == nil {
+		d.urls[url] = make(chan int, 1)
+	}
+}
+
+// Discard given url from downloading
+func (d *Downloader) Discard(url string) {
+	delete(d.urls, url)
 }
 
 // Serve starts downloading urls, blocks until Cancel() will not be called

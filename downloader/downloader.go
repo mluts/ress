@@ -2,6 +2,7 @@ package downloader
 
 import (
 	"github.com/mmcdole/gofeed"
+	"io/ioutil"
 	"log"
 	"time"
 )
@@ -14,7 +15,8 @@ type Downloader struct {
 	urls    map[string]chan int
 	handler Handler
 
-	pool chan int
+	pool   chan int
+	Logger *log.Logger
 }
 
 // Handler is called with downloaded feed data time after time
@@ -26,23 +28,27 @@ func New(period time.Duration, poolSize uint, h Handler) *Downloader {
 		period:  period,
 		handler: h,
 		urls:    make(map[string]chan int),
-		pool:    make(chan int, poolSize)}
+		pool:    make(chan int, poolSize),
+		Logger:  log.New(ioutil.Discard, "", log.LstdFlags)}
 }
 
 // Download given the url in future
 func (d *Downloader) Download(url string) {
 	if d.urls[url] == nil {
+		d.Logger.Print("Enqueueing ", url)
 		d.urls[url] = make(chan int, 1)
 	}
 }
 
 // Discard given url from downloading
 func (d *Downloader) Discard(url string) {
+	d.Logger.Print("Discarding ", url)
 	delete(d.urls, url)
 }
 
 // Serve starts downloading urls, blocks until Cancel() will not be called
 func (d *Downloader) Serve() {
+	d.Logger.Print("Serving downloads")
 	d.shutDown = false
 
 	for !d.shutDown {
@@ -60,6 +66,8 @@ func (d *Downloader) Serve() {
 }
 
 func (d *Downloader) download(url string) {
+	d.Logger.Print("Downloading ", url)
+
 	defer func() {
 		<-d.pool
 		<-d.urls[url]
@@ -77,5 +85,6 @@ func (d *Downloader) download(url string) {
 
 // Cancel disables further downloading
 func (d *Downloader) Cancel() {
+	d.Logger.Print("Cancelling downloads")
 	d.shutDown = true
 }

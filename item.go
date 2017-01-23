@@ -9,7 +9,7 @@ import (
 type Item struct {
 	gorm.Model
 
-	Feed   Feed
+	Feed   Feed `json:"-"`
 	FeedID uint
 
 	Title       string

@@ -166,4 +166,8 @@ func TestFeed_api_feed_items(t *tt.T) {
 	if items[0].FeedID != feed.ID {
 		t.Errorf("Expected item feedID to eq %d, but have %d", feed.ID, items[0].FeedID)
 	}
+
+	if strings.Contains(rec.Body.String(), "\"Feed\":") {
+		t.Errorf("Feed should not be included in the json")
+	}
 }

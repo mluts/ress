@@ -104,7 +104,7 @@ func (a *App) enqueueDownloads() {
 	}
 
 	for _, feed := range feeds {
-		a.downloader.Download(feed.Link)
+		a.downloader.Enqueue(feed.Link)
 	}
 }
 

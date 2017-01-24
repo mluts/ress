@@ -3,11 +3,14 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/mluts/ress/downloader"
+	"github.com/mmcdole/gofeed"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
 	"strings"
-	tt "testing"
+	"testing"
+	"time"
 )
 
 var (
@@ -24,7 +27,10 @@ func init() {
 		panic(err)
 	}
 
-	app = &App{db}
+	h := func(uri string, feed *gofeed.Feed, err error) {}
+	d := downloader.New(time.Second, 1, h)
+	app = &App{db: db, downloader: d}
+
 	handler = app.handler()
 }
 
@@ -40,7 +46,7 @@ func doRequest(method, target string, body []byte) *httptest.ResponseRecorder {
 	return w
 }
 
-func TestFeed_api_list(t *tt.T) {
+func TestFeed_api_list(t *testing.T) {
 	clearDatabase()
 
 	feed := exampleFeed
@@ -66,7 +72,7 @@ func TestFeed_api_list(t *tt.T) {
 	}
 }
 
-func TestFeed_api_create(t *tt.T) {
+func TestFeed_api_create(t *testing.T) {
 	var (
 		err   error
 		b     []byte
@@ -100,7 +106,7 @@ func TestFeed_api_create(t *tt.T) {
 	}
 }
 
-func TestFeed_api_show(t *tt.T) {
+func TestFeed_api_show(t *testing.T) {
 	clearDatabase()
 	feed := exampleFeed
 	err := app.db.createFeed(&feed)
@@ -127,7 +133,7 @@ func TestFeed_api_show(t *tt.T) {
 	}
 }
 
-func TestFeed_api_feed_items(t *tt.T) {
+func TestFeed_api_feed_items(t *testing.T) {
 	clearDatabase()
 	feed := exampleFeed
 	err := app.db.createFeed(&feed)

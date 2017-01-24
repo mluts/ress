@@ -5,6 +5,10 @@ import (
 	"testing"
 )
 
+var exampleItem = Item{
+	Title: "The item title",
+	Link:  "https://example.com/blog/1"}
+
 func TestItem_create(t *testing.T) {
 	var err error
 
@@ -44,7 +48,7 @@ func TestItem_find(t *testing.T) {
 	f := exampleFeed
 	err = db.createFeed(&f)
 	if err != nil {
-		panic(err)
+		t.Fatal("Can't create feed ", err)
 	}
 
 	link := f.Link
@@ -59,5 +63,32 @@ func TestItem_find(t *testing.T) {
 
 	if err != nil {
 		t.Error("Expected not to have error, but have", err)
+	}
+}
+
+func TestItem_find_or_create_item(t *testing.T) {
+	var err error
+	clearDatabase()
+
+	f := exampleFeed
+	err = db.createFeed(&f)
+	if err != nil {
+		t.Fatal("Can't create feed ", err)
+	}
+
+	i := exampleItem
+
+	if !db.db.NewRecord(&i) {
+		t.Fatalf("%v should be new record", i)
+	}
+
+	err = db.findOrCreateItem(&f, &i)
+
+	if err != nil {
+		t.Error("Failed to create an item ", err)
+	}
+
+	if db.db.NewRecord(&i) {
+		t.Errorf("%v should be persisted", i)
 	}
 }

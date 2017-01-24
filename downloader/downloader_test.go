@@ -4,7 +4,9 @@ import (
 	"github.com/mmcdole/gofeed"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -48,19 +50,20 @@ func assertSameItems(t *testing.T, expected, actual *gofeed.Item) {
 func testURL(givenURL string, h Handler) {
 	var (
 		downloader *Downloader
+		wg         = &sync.WaitGroup{}
 	)
 
-	quit := make(chan int)
-
-	downloader = New(time.Nanosecond, 3, func(url string, feed *gofeed.Feed, err error) {
+	wg.Add(1)
+	downloader = New(time.Nanosecond, 1, func(url string, feed *gofeed.Feed, err error) {
 		downloader.Cancel()
 		h(url, feed, err)
-		quit <- 1
+		wg.Done()
 	})
+	downloader.Logger.SetOutput(os.Stdout)
 
-	downloader.Download(givenURL)
+	downloader.Enqueue(givenURL)
 	go downloader.Serve()
-	<-quit
+	wg.Wait()
 }
 
 func TestDownload_good_url(t *testing.T) {
@@ -100,7 +103,7 @@ func TestDownload_bad_url(t *testing.T) {
 	server := fixturesServer()
 	defer server.Close()
 
-	givenURL := strings.Join([]string{server.URL, "/bad.rss"}, "/")
+	givenURL := strings.Join([]string{server.URL, "bad.rss"}, "/")
 
 	testURL(givenURL, func(url string, feed *gofeed.Feed, err error) {
 		if err == nil {
@@ -130,14 +133,43 @@ func TestDownload_discard(t *testing.T) {
 	downloader = New(time.Nanosecond, 3, func(url string, feed *gofeed.Feed, err error) {
 		downloader.Discard(url)
 
-		if downloader.urls[url] != nil {
+		if _, present := downloader.urls[url]; present {
 			t.Error("Url should be nil after discarding it")
 		}
 
 		quit <- 1
 	})
 
-	downloader.Download(givenURL)
+	downloader.Enqueue(givenURL)
 	go downloader.Serve()
 	<-quit
+}
+
+func TestDownload_immediate_download(t *testing.T) {
+	var (
+		downloader *Downloader
+		wg         = &sync.WaitGroup{}
+		once       = &sync.Once{}
+	)
+	server := fixturesServer()
+	defer server.Close()
+
+	givenURL := strings.Join([]string{server.URL, "ruby.rss"}, "/")
+
+	// Expecting exactly TWO downloads
+	wg.Add(2)
+
+	download := func() {
+		downloader.Download(givenURL)
+	}
+
+	downloader = New(time.Nanosecond, 3, func(url string, feed *gofeed.Feed, err error) {
+		downloader.Cancel()
+		once.Do(download)
+		wg.Done()
+	})
+
+	downloader.Enqueue(givenURL)
+	go downloader.Serve()
+	wg.Wait()
 }

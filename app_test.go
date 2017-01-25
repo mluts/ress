@@ -3,8 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/mluts/ress/downloader"
-	"github.com/mmcdole/gofeed"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -21,15 +19,18 @@ var (
 
 func init() {
 	var err error
+	config := &AppConfig{
+		dbDialect:           "sqlite3",
+		dbURL:               ":memory:",
+		downloadInterval:    time.Second,
+		downloadConcurrency: 1}
 
-	db, err = OpenDatabase("sqlite3", ":memory:")
+	app, err = NewApp(config)
 	if err != nil {
 		panic(err)
 	}
 
-	h := func(uri string, feed *gofeed.Feed, err error) {}
-	d := downloader.New(time.Second, 1, h)
-	app = &App{db: db, downloader: d}
+	db = app.db
 
 	handler = app.handler()
 }

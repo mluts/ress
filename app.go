@@ -104,7 +104,7 @@ func (a *App) enqueueDownloads() {
 	}
 
 	for _, feed := range feeds {
-		a.downloader.Download(feed.Link)
+		a.downloader.Enqueue(feed.Link)
 	}
 }
 
@@ -128,13 +128,10 @@ func (a *App) handleFeedDownload(url string, feed *gofeed.Feed, err error) {
 	}
 
 	for _, item := range feed.Items {
-		err := a.db.createItem(&f, &Item{
-			Title:       item.Title,
-			Description: item.Description,
-			Content:     item.Content,
-			Link:        item.Link,
-			Updated:     item.Updated,
-			Published:   item.Published})
+		newItem := &Item{}
+		translateItem(item, newItem)
+
+		err := a.db.findOrCreateItem(&f, newItem)
 
 		if err != nil {
 			log.Print("Failed to create an item ", err)

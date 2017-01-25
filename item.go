@@ -16,7 +16,7 @@ type Item struct {
 	Title       string
 	Description string
 	Content     string
-	Link        string
+	Link        string `gorm:"not null;index"`
 	Updated     string
 	Published   string
 }
@@ -35,11 +35,11 @@ func (db *DB) feedItems(f *Feed) error {
 }
 
 func (db *DB) findItem(f *Feed, link string, i *Item) error {
-	return db.db.Model(f).Related(&f.Items).First(i, "link = ?", i.Link).Error
+	return db.db.Model(f).Related(&f.Items).First(i, "link = ?", link).Error
 }
 
 func (db *DB) findOrCreateItem(f *Feed, i *Item) (err error) {
-	err = db.db.Model(f).Related(&f.Items).First(&Item{}, "link = ?", i.Link).Error
+	err = db.findItem(f, i.Link, &Item{})
 
 	if err == gorm.ErrRecordNotFound {
 		err = db.createItem(f, i)
@@ -48,11 +48,23 @@ func (db *DB) findOrCreateItem(f *Feed, i *Item) (err error) {
 	return
 }
 
-func (db *DB) translateItem(from *gofeed.Item, to *Item) {
+func translateItem(from *gofeed.Item, to *Item) {
 	to.Title = from.Title
 	to.Description = from.Description
 	to.Content = from.Content
 	to.Link = from.Link
 	to.Updated = from.Updated
 	to.Published = from.Published
+}
+
+func (db *DB) validateItem(i *Item) (err error) {
+	if len(i.Title) == 0 {
+		return errors.New("Title can't be blank")
+	}
+
+	if len(i.Link) == 0 {
+		return errors.New("Link can't be blank")
+	}
+
+	return
 }

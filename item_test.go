@@ -66,7 +66,7 @@ func TestItem_find(t *testing.T) {
 	}
 }
 
-func TestItem_find_or_create_item(t *testing.T) {
+func TestItem_find_or_create_item_creates_item(t *testing.T) {
 	var err error
 	clearDatabase()
 
@@ -90,5 +90,42 @@ func TestItem_find_or_create_item(t *testing.T) {
 
 	if db.db.NewRecord(&i) {
 		t.Errorf("%v should be persisted", i)
+	}
+
+	newItem := i
+	newItem.Title = "Title 2"
+
+	err = db.findOrCreateItem(&f, &newItem)
+	db.db.First(&newItem, "link = ?", i.Link)
+
+	if err != nil {
+		t.Fatal("Something went wrong", err)
+	}
+
+	if newItem.Title != i.Title {
+		t.Error("Item title should not be updated")
+	}
+}
+
+func TestItem_create_passes_validations(t *testing.T) {
+	var err error
+	clearDatabase()
+
+	f := exampleFeed
+	i := exampleItem
+
+	i.Title = ""
+	err = db.createItem(&f, &i)
+
+	if err == nil {
+		t.Error("Item should not be created without a title")
+	}
+
+	i = exampleItem
+	i.Link = ""
+	err = db.createItem(&f, &i)
+
+	if err == nil {
+		t.Error("Item should not be created without a link")
 	}
 }

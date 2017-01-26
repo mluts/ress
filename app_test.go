@@ -178,3 +178,6 @@ func TestFeed_api_feed_items(t *testing.T) {
 		t.Errorf("Feed should not be included in the json")
 	}
 }
+
+func TestFeed_api_delete_feed(t *testing.T) {
+}

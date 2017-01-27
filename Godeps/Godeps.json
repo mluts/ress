@@ -18,18 +18,14 @@
 			"Rev": "392c28fe23e1c45ddba891b0320b3b5df220beea"
 		},
 		{
-			"ImportPath": "github.com/jinzhu/gorm",
-			"Comment": "v1.0-114-g7fb9b62",
-			"Rev": "7fb9b62c17d90320e0582a4720db025c1652fd6a"
+			"ImportPath": "github.com/jmoiron/sqlx",
+			"Comment": "sqlx-v1.1-105-gf980a91",
+			"Rev": "f980a91bdc37abef88269b8f122d7de6352102f5"
 		},
 		{
-			"ImportPath": "github.com/jinzhu/gorm/dialects/sqlite",
-			"Comment": "v1.0-114-g7fb9b62",
-			"Rev": "7fb9b62c17d90320e0582a4720db025c1652fd6a"
-		},
-		{
-			"ImportPath": "github.com/jinzhu/inflection",
-			"Rev": "1c35d901db3da928c72a72d8458480cc9ade058f"
+			"ImportPath": "github.com/jmoiron/sqlx/reflectx",
+			"Comment": "sqlx-v1.1-105-gf980a91",
+			"Rev": "f980a91bdc37abef88269b8f122d7de6352102f5"
 		},
 		{
 			"ImportPath": "github.com/mattn/go-sqlite3",
@@ -64,6 +60,14 @@
 		{
 			"ImportPath": "github.com/mmcdole/goxpp",
 			"Rev": "e38884aa48c1952a416ba35f3c276e4f02f9b40e"
+		},
+		{
+			"ImportPath": "github.com/rubenv/sql-migrate",
+			"Rev": "1ed79968dfca5de79adb13c84523caaa4fc865a9"
+		},
+		{
+			"ImportPath": "github.com/rubenv/sql-migrate/sqlparse",
+			"Rev": "1ed79968dfca5de79adb13c84523caaa4fc865a9"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
@@ -140,6 +144,11 @@
 		{
 			"ImportPath": "golang.org/x/text/transform",
 			"Rev": "11dbc599981ccdf4fb18802a28392a8bcf7a9395"
+		},
+		{
+			"ImportPath": "gopkg.in/gorp.v1",
+			"Comment": "v1.7.1",
+			"Rev": "c87af80f3cc5036b55b83d77171e156791085e2e"
 		}
 	]
 }

@@ -11,34 +11,34 @@ var Migrations = &migrate.MemoryMigrationSource{
 			Up: []string{`
 			CREATE TABLE IF NOT EXISTS feeds
 				(
-					id 				 INTEGER PRIMARY KEY,
-					link 			 TEXT 		NOT NULL CHECK(length(link) > 0),
-					title 		 TEXT 		NOT NULL CHECK(length(title) > 0),
-					author 		 TEXT 		NOT NULL DEFAULT "",
-					active 		 BOOLEAN 	NOT NULL DEFAULT TRUE,
-					error 		 TEXT 		NOT NULL DEFAULT "",
+					id INTEGER PRIMARY KEY,
+					link TEXT NOT NULL CHECK(length(link) > 0),
+					title TEXT NOT NULL CHECK(length(title) > 0),
+					author TEXT NOT NULL DEFAULT "",
+					active BOOLEAN 	NOT NULL DEFAULT TRUE,
+					error TEXT NOT NULL DEFAULT "",
 					created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 					updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 				);
 
 			CREATE TABLE IF NOT EXISTS items
 				(
-					id 					INTEGER PRIMARY KEY,
-					feed_id 		INTEGER REFERENCES feeds(id) ON DELETE CASCADE,
-					link 				TEXT NOT NULL CHECK(length(link) > 0),
-					title 			TEXT NOT NULL CHECK(length(title) > 0),
-					content 		TEXT NOT NULL DEFAULT "",
+					id INTEGER PRIMARY KEY,
+					feed_id INTEGER REFERENCES feeds(id) ON DELETE CASCADE,
+					link TEXT NOT NULL CHECK(length(link) > 0),
+					title TEXT NOT NULL CHECK(length(title) > 0),
+					content TEXT NOT NULL DEFAULT "",
 					description TEXT NOT NULL DEFAULT "",
-					author 			TEXT NOT NULL DEFAULT "",
-					updated 		DATETIME NOT NULL DEFAULT 0,
-					published 	DATETIME NOT NULL DEFAULT 0,
-					created_at 	DATETIME DEFAULT CURRENT_TIMESTAMP,
-					updated_at 	DATETIME DEFAULT CURRENT_TIMESTAMP
+					author TEXT NOT NULL DEFAULT "",
+					updated DATETIME NOT NULL DEFAULT 0,
+					published DATETIME NOT NULL DEFAULT 0,
+					created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+					updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 				);
 
 			CREATE TABLE IF NOT EXISTS item_reads
 				(
-					id 			INTEGER PRIMARY KEY,
+					id INTEGER PRIMARY KEY,
 					item_id INTEGER REFERENCES items(id) ON DELETE CASCADE
 				);
 

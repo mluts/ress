@@ -16,7 +16,7 @@ type Item struct {
 	Title       string
 	Description string
 	Content     string
-	Link        string `gorm:"not null;index"`
+	Link        string
 	Updated     string
 	Published   string
 }

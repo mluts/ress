@@ -4,7 +4,7 @@ import (
 	"github.com/rubenv/sql-migrate"
 )
 
-var migrations = &migrate.MemoryMigrationSource{
+var Migrations = &migrate.MemoryMigrationSource{
 	Migrations: []*migrate.Migration{
 		&migrate.Migration{
 			Id: "1",
@@ -12,8 +12,11 @@ var migrations = &migrate.MemoryMigrationSource{
 			CREATE TABLE IF NOT EXISTS feeds
 				(
 					id INTEGER PRIMARY KEY,
-					link TEXT NOT NULL,
-					title TEXT NOT NULL,
+					link TEXT NOT NULL CHECK(length(link) > 0),
+					title TEXT NOT NULL CHECK(length(title) > 0),
+					author TEXT,
+					active BOOLEAN DEFAULT TRUE,
+					error TEXT,
 					created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 					updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 				);
@@ -21,16 +24,22 @@ var migrations = &migrate.MemoryMigrationSource{
 			CREATE TABLE IF NOT EXISTS items
 				(
 					id INTEGER PRIMARY KEY,
-					FOREIGN KEY(feed_id) REFERENCES feeds(id) ON DELETE CASCADE,
-					link TEXT NOT NULL,
-					title TEXT NOT NULL,
+					feed_id REFERENCES feeds(id) ON DELETE CASCADE,
+					link TEXT NOT NULL CHECK(length(link) > 0),
+					title TEXT NOT NULL CHECK(length(title) > 0),
 					content TEXT,
+					author TEXT,
+					updated DATETIME,
+					published DATETIME,
 					created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 					updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 				);
 
 			CREATE UNIQUE INDEX IF NOT EXISTS
 				feed_item_link ON items ( feed_id, link );
+
+			CREATE UNIQUE INDEX IF NOT EXISTS
+				feed_link ON feeds(link);
 
 			CREATE TRIGGER IF NOT EXISTS
 				feeds_updated_at AFTER UPDATE ON feeds

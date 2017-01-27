@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"bytes"
@@ -20,10 +20,10 @@ var (
 func init() {
 	var err error
 	config := &AppConfig{
-		dbDialect:           "sqlite3",
-		dbURL:               ":memory:",
-		downloadInterval:    time.Second,
-		downloadConcurrency: 1}
+		DBDialect:           "sqlite3",
+		DBURL:               ":memory:",
+		DownloadInterval:    time.Second,
+		DownloadConcurrency: 1}
 
 	app, err = NewApp(config)
 	if err != nil {

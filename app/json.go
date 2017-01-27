@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"bytes"
@@ -6,6 +6,10 @@ import (
 	"io"
 	"net/http"
 )
+
+type errorResponse struct {
+	Error string
+}
 
 func decodeJSONRequest(v interface{}, r *http.Request) error {
 	dec := json.NewDecoder(r.Body)

@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"github.com/mluts/ress/downloader"
@@ -13,19 +13,15 @@ type App struct {
 
 // AppConfig is an application configuration
 type AppConfig struct {
-	dbDialect           string
-	dbURL               string
-	downloadInterval    time.Duration
-	downloadConcurrency uint
-}
-
-type errorResponse struct {
-	Error string
+	DBDialect           string
+	DBURL               string
+	DownloadInterval    time.Duration
+	DownloadConcurrency uint
 }
 
 // NewApp initializes new application
 func NewApp(config *AppConfig) (*App, error) {
-	db, err := OpenDatabase(config.dbDialect, config.dbURL)
+	db, err := OpenDatabase(config.DBDialect, config.DBURL)
 	if err != nil {
 		return nil, err
 	}
@@ -33,8 +29,8 @@ func NewApp(config *AppConfig) (*App, error) {
 	app := &App{db: db}
 
 	d := downloader.New(
-		config.downloadInterval,
-		config.downloadConcurrency,
+		config.DownloadInterval,
+		config.DownloadConcurrency,
 		app.handleFeedDownload)
 
 	app.downloader = d

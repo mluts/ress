@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/mluts/ress/app"
 	"log"
 	"net/http"
 	"time"
@@ -9,11 +10,11 @@ import (
 const addr = ":8080"
 
 func main() {
-	config := &AppConfig{
-		dbDialect:           "sqlite3",
-		dbURL:               "./db.sqlite",
-		downloadInterval:    time.Second * 30,
-		downloadConcurrency: 10}
+	config := &app.AppConfig{
+		DBDialect:           "sqlite3",
+		DBURL:               "./db.sqlite",
+		DownloadInterval:    time.Second * 30,
+		DownloadConcurrency: 10}
 
 	app, err := NewApp(config)
 	if err != nil {

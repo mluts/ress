@@ -10,10 +10,12 @@ import (
 	"time"
 )
 
+// DB is a database wrapper to provide application specific methods for it
 type DB struct {
 	*sqlx.DB
 }
 
+// Feed represents a rss feed in our database
 type Feed struct {
 	ID int64 `db:"id"`
 
@@ -27,6 +29,7 @@ type Feed struct {
 	UpdatedAt time.Time `db:"updated_at"`
 }
 
+// Item represents a feed item in our database
 type Item struct {
 	ID     int64 `db:"id"`
 	FeedID int64 `db:"feed_id"`
@@ -37,12 +40,15 @@ type Item struct {
 	Content     string `db:"content"`
 	Author      string `db:"author"`
 
+	Unread bool `db:"unread"`
+
 	Updated   *time.Time `db:"updated"`
 	Published *time.Time `db:"published"`
 	CreatedAt *time.Time `db:"created_at"`
 	UpdatedAt *time.Time `db:"updated_at"`
 }
 
+// OpenDatabase returns a common database connection for given dialect
 func OpenDatabase(dialect, dest string) (db *DB, err error) {
 	var (
 		sqldb  *sql.DB
@@ -155,9 +161,19 @@ func (db *DB) deleteItem(id int64) error {
 }
 
 func (db *DB) getItem(id int64, out *Item) error {
-	return db.Get(out, "SELECT * FROM items WHERE id = $1 ORDER BY id LIMIT 1", id)
+	return db.Get(out, "SELECT * FROM items_view WHERE id = $1 ORDER BY id LIMIT 1", id)
 }
 
 func (db *DB) getItems(feedID int64, limit int, out *[]Item) error {
-	return db.Select(out, "SELECT * FROM items ORDER BY id LIMIT $1", limit)
+	return db.Select(out, "SELECT * FROM items_view ORDER BY id LIMIT $1", limit)
+}
+
+func (db *DB) markItemRead(itemID int64, read bool) (err error) {
+	if read {
+		_, err = db.Exec("INSERT INTO item_reads VALUES ( $1 )", itemID)
+	} else {
+		_, err = db.Exec("DELETE FROM item_reads WHERE item_id = $1", itemID)
+	}
+
+	return
 }

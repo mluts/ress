@@ -88,11 +88,12 @@ func (a *App) feedItems(w http.ResponseWriter, r *http.Request) {
 	var (
 		items []Item
 		err   error
+		id    int
 	)
 
 	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
+
+	if id, err = strconv.Atoi(vars["id"]); err != nil {
 		jsonError(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -106,13 +107,53 @@ func (a *App) feedItems(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, &items)
 }
 
+func (a *App) markItemRead(w http.ResponseWriter, r *http.Request) {
+	var (
+		itemID int
+		err    error
+	)
+	vars := mux.Vars(r)
+
+	if itemID, err = strconv.Atoi(vars["id"]); err != nil {
+		jsonError(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err = a.db.markItemRead(int64(itemID), true); err != nil {
+		jsonError(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+}
+
+func (a *App) unmarkItemRead(w http.ResponseWriter, r *http.Request) {
+	var (
+		itemID int
+		err    error
+	)
+
+	vars := mux.Vars(r)
+
+	if itemID, err = strconv.Atoi(vars["id"]); err != nil {
+		jsonError(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err = a.db.markItemRead(int64(itemID), false); err != nil {
+		jsonError(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+}
+
 func (a *App) handler() http.Handler {
 	var routes = []route{
 		{http.MethodGet, "/feeds", a.listFeeds},
 		{http.MethodPost, "/feeds", a.createFeed},
 		{http.MethodGet, "/feeds/{id:[0-9]+}", a.showFeed},
 		{http.MethodDelete, "/feeds/{id:[0-9]+}", a.deleteFeed},
-		{http.MethodGet, "/feeds/{id:[0-9]+}/items", a.feedItems}}
+		{http.MethodGet, "/feeds/{id:[0-9]+}/items", a.feedItems},
+		{http.MethodPost, "/feeds/{feed_id:[0-9]+}/items/{id:[0-9]+}/read", a.markItemRead},
+		{http.MethodDelete, "/feeds/{feed_id:[0-9]+}/items/{id:[0-9]+}/read", a.unmarkItemRead},
+	}
 
 	r := mux.NewRouter()
 

@@ -188,6 +188,7 @@ func TestFeed_api_feed_items(t *testing.T) {
 
 	if len(items) != len(itemExamples) {
 		t.Error("Expected to have 2 items, but have", len(items))
+		t.Error(rec.Body.String())
 		return
 	}
 
@@ -197,6 +198,10 @@ func TestFeed_api_feed_items(t *testing.T) {
 
 	if strings.Contains(rec.Body.String(), "\"Feed\":") {
 		t.Errorf("Feed should not be included in the json")
+	}
+
+	if !items[0].Unread {
+		t.Error("Item should be unread initially")
 	}
 }
 

@@ -20,6 +20,7 @@ func main() {
 		log.Fatal("Can't initialize the app:", err)
 	}
 
+	app.Run()
 	log.Print("Listening at", addr)
 	log.Fatal(http.ListenAndServe(addr, app.handler()))
 }

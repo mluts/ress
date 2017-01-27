@@ -63,6 +63,19 @@ func doRequest(method, target string, body []byte) *httptest.ResponseRecorder {
 	return w
 }
 
+func assertRequestCode(t *testing.T, r *httptest.ResponseRecorder, code int) {
+	if r.Code != code {
+		t.Errorf("Expected to see code %d, but have %d", code, r.Code)
+		t.Error(r.Body.String())
+	}
+}
+
+func assertIntEq(t *testing.T, expected, actual int) {
+	if expected != actual {
+		t.Error("Expected %d to equal to %d", actual, expected)
+	}
+}
+
 func TestFeed_api_list(t *testing.T) {
 	clearDatabase()
 
@@ -72,10 +85,7 @@ func TestFeed_api_list(t *testing.T) {
 
 	rec := doRequest("GET", "/feeds", nil)
 
-	if rec.Code != 200 {
-		t.Error("Code should be 200, but have", rec.Code)
-		t.Error(rec.Body.String())
-	}
+	assertRequestCode(t, rec, 200)
 
 	feeds := make([]Feed, 1)
 	json.Unmarshal(rec.Body.Bytes(), &feeds)
@@ -116,9 +126,7 @@ func TestFeed_api_create(t *testing.T) {
 
 	rec := doRequest("POST", "/feeds", b)
 
-	if rec.Code != 200 {
-		t.Error("Expected to have code 200, but have", rec.Code)
-	}
+	assertRequestCode(t, rec, 200)
 
 	count = feedsCount()
 	if count != 1 {
@@ -141,10 +149,7 @@ func TestFeed_api_show(t *testing.T) {
 
 	rec := doRequest("GET", path, nil)
 
-	if rec.Code != 200 {
-		t.Error("Expected to see status 200, but seeing", rec.Code)
-		t.Error(rec.Body.String())
-	}
+	assertRequestCode(t, rec, 200)
 
 	feed2 := Feed{}
 	json.Unmarshal(rec.Body.Bytes(), &feed2)
@@ -177,11 +182,7 @@ func TestFeed_api_feed_items(t *testing.T) {
 
 	rec := doRequest("GET", path, nil)
 
-	if rec.Code != 200 {
-		t.Error("Expected to see code 200, but have", rec.Code)
-		t.Error(rec.Body.String())
-		return
-	}
+	assertRequestCode(t, rec, 200)
 
 	items := make([]Item, 0)
 	json.Unmarshal(rec.Body.Bytes(), &items)
@@ -206,4 +207,35 @@ func TestFeed_api_feed_items(t *testing.T) {
 }
 
 func TestFeed_api_delete_feed(t *testing.T) {
+	clearDatabase()
+
+	feed := feedExamples[0].feed
+	id, err := db.createFeed(&feed)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(itemExamples) == 0 {
+		t.Fatal("Don't have item examples")
+	}
+
+	for _, item := range itemExamples {
+		err := db.createItem(id, &item)
+		if err != nil {
+			t.Errorf("Expected to save feed, but had an error: %v", err)
+		}
+	}
+
+	assertIntEq(t, 1, int(feedsCount()))
+	assertIntEq(t, len(itemExamples), int(itemsCount()))
+
+	path := strings.Join([]string{
+		"/feeds",
+		strconv.Itoa(int(id))}, "/")
+
+	rec := doRequest("DELETE", path, nil)
+
+	assertRequestCode(t, rec, 200)
+	assertIntEq(t, 0, int(feedsCount()))
+	assertIntEq(t, 0, int(itemsCount()))
 }

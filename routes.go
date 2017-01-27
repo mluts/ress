@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gorilla/mux"
 	"net/http"
+	"strconv"
 )
 
 type createFeedRequest struct {
@@ -16,15 +17,15 @@ type route struct {
 }
 
 func (a *App) listFeeds(w http.ResponseWriter, r *http.Request) {
-	feeds := make([]Feed, 0)
-	err := a.db.allFeeds(&feeds)
+	feeds := []Feed{}
+	err := a.db.getFeeds(-1, &feeds)
 
 	if err != nil {
 		jsonError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	jsonResponse(w, feeds)
+	jsonResponse(w, &feeds)
 }
 
 func (a *App) createFeed(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +37,7 @@ func (a *App) createFeed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = a.db.createFeed(&Feed{
+	_, err = a.db.createFeed(&Feed{
 		Title: req.Title,
 		Link:  req.Link})
 
@@ -52,9 +53,13 @@ func (a *App) showFeed(w http.ResponseWriter, r *http.Request) {
 	var feed Feed
 
 	vars := mux.Vars(r)
-	id := vars["id"]
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		jsonError(w, err.Error(), http.StatusNotFound)
+		return
+	}
 
-	err := a.db.feed(&feed, id)
+	err = a.db.getFeed(int64(id), &feed)
 	if err != nil {
 		jsonError(w, err.Error(), http.StatusNotFound)
 		return
@@ -66,15 +71,13 @@ func (a *App) showFeed(w http.ResponseWriter, r *http.Request) {
 func (a *App) deleteFeed(w http.ResponseWriter, r *http.Request) {
 	var err error
 	vars := mux.Vars(r)
-	id := vars["id"]
-
-	err = a.db.db.Delete(&Feed{}, "id = ?", id).Error
+	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		jsonError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = a.db.db.Delete(&Item{}, "feed_id = ?", id).Error
+	err = a.db.deleteFeed(int64(id))
 	if err != nil {
 		jsonError(w, err.Error(), http.StatusBadRequest)
 		return
@@ -83,26 +86,24 @@ func (a *App) deleteFeed(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) feedItems(w http.ResponseWriter, r *http.Request) {
 	var (
-		feed Feed
-		err  error
+		items []Item
+		err   error
 	)
 
 	vars := mux.Vars(r)
-	id := vars["id"]
-
-	err = a.db.feed(&feed, id)
+	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		jsonError(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
-	err = a.db.feedItems(&feed)
+	err = a.db.getItems(int64(id), -1, &items)
 	if err != nil {
 		jsonError(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
-	jsonResponse(w, feed.Items)
+	jsonResponse(w, &items)
 }
 
 func (a *App) handler() http.Handler {

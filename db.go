@@ -4,8 +4,6 @@ import (
 	// "database/sql"
 	"database/sql"
 	"fmt"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/mluts/ress/db/sqlite"
@@ -13,52 +11,40 @@ import (
 	"time"
 )
 
-// DB provides a database interface
 type DB struct {
-	db *gorm.DB
-}
-
-type _DB struct {
 	*sqlx.DB
 }
 
-type _Feed struct {
-	ID uint `db:"id"`
+type Feed struct {
+	ID int64 `db:"id"`
 
-	Title  sql.NullString `db:"title"`
-	Link   sql.NullString `db:"link"`
-	Author sql.NullString `db:"author"`
+	Title  string `db:"title"`
+	Link   string `db:"link"`
+	Author string `db:"author"`
 
-	Error     sql.NullString `db:"error"`
-	Active    bool           `db:"active"`
-	CreatedAt time.Time      `db:"created_at"`
-	UpdatedAt time.Time      `db:"updated_at"`
+	Error     string    `db:"error"`
+	Active    bool      `db:"active"`
+	CreatedAt time.Time `db:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"`
 }
 
-type _Item struct {
-	ID     uint `db:"id"`
-	FeedID uint `db:"feed_id"`
+type Item struct {
+	ID     int64 `db:"id"`
+	FeedID int64 `db:"feed_id"`
 
 	Title       string `db:"title"`
 	Link        string `db:"link"`
 	Description string `db:"description"`
 	Content     string `db:"content"`
+	Author      string `db:"author"`
+
+	Updated   *time.Time `db:"updated"`
+	Published *time.Time `db:"published"`
+	CreatedAt *time.Time `db:"created_at"`
+	UpdatedAt *time.Time `db:"updated_at"`
 }
 
-// OpenDatabase opens and initializes database
-func OpenDatabase(dialect, dest string) (*DB, error) {
-	db, err := gorm.Open(dialect, dest)
-	if err != nil {
-		return nil, err
-	}
-
-	db.AutoMigrate(&Feed{})
-	db.AutoMigrate(&Item{})
-
-	return &DB{db}, nil
-}
-
-func _OpenDatabase(dialect, dest string) (db *_DB, err error) {
+func OpenDatabase(dialect, dest string) (db *DB, err error) {
 	var (
 		sqldb  *sql.DB
 		sqlxdb *sqlx.DB
@@ -74,18 +60,18 @@ func _OpenDatabase(dialect, dest string) (db *_DB, err error) {
 	}
 
 	sqlxdb = sqlx.NewDb(sqldb, dialect)
-	db = &_DB{sqlxdb}
+	db = &DB{sqlxdb}
 
 	return
 }
 
-func (db *_DB) feedPresent(link string) bool {
+func (db *DB) feedPresent(link string) bool {
 	var count int64
 	db.Get(&count, "SELECT count(id) FROM feeds WHERE link = $1", link)
 	return count > 0
 }
 
-func (db *_DB) createFeed(feed *_Feed) (id int64, err error) {
+func (db *DB) createFeed(feed *Feed) (id int64, err error) {
 	var result sql.Result
 
 	result, err = db.NamedExec(`
@@ -102,35 +88,72 @@ func (db *_DB) createFeed(feed *_Feed) (id int64, err error) {
 	return
 }
 
-func (db *_DB) updateFeed(feed *_Feed) error {
+func (db *DB) updateFeed(id int64, feed *Feed) error {
+	feed.ID = id
+
 	_, err := db.NamedExec(`
 		UPDATE feeds SET
 			(link, title, error, active)
 			VALUES (:link, :title, :error, :active)
+			WHERE id = :id
 	`, feed)
 
 	return err
 }
 
-func (db *_DB) deleteFeed(id int64) error {
+func (db *DB) createOrUpdateFeedByLink(link string, feed *Feed) (int64, error) {
+	var out Feed
+	if err := db.getFeedByLink(link, &out); err != nil {
+		return db.createFeed(feed)
+	}
+
+	return out.ID, db.updateFeed(out.ID, feed)
+}
+
+func (db *DB) deleteFeed(id int64) error {
 	_, err := db.Exec("DELETE FROM feeds WHERE id = $1", id)
 	return err
 }
 
-func (db *_DB) getFeed(id int64, out *_Feed) error {
+func (db *DB) getFeed(id int64, out *Feed) error {
 	return db.Get(out, "SELECT * FROM feeds WHERE id = $1 ORDER BY id LIMIT 1", id)
 }
 
-func (db *_DB) getFeeds(limit int, out *[]_Feed) error {
+func (db *DB) getFeedByLink(link string, out *Feed) error {
+	return db.Get(out, "SELECT * FROM feeds WHERE link = $1 ORDER BY id LIMIT 1", link)
+}
+
+func (db *DB) getFeeds(limit int, out *[]Feed) error {
 	return db.Select(out, "SELECT * FROM feeds ORDER BY id LIMIT $1", limit)
 }
 
-func (db *_DB) createItem(feed *_Feed, item *_Item) error {
-	item.FeedID = feed.ID
+func (db *DB) createItem(feedID int64, item *Item) error {
+	item.FeedID = feedID
 
 	_, err := db.NamedExec(`
 		INSERT INTO items (feed_id, title, link, description, content)
 			VALUES (:feed_id, :title, :link, :description, :content)
 	`, item)
 	return err
+}
+
+func (db *DB) updateItem(item *Item) error {
+	_, err := db.NamedExec(`
+		UPDATE items SET (title, link, description, content)
+			VALUES (link, description, content)
+	`, item)
+	return err
+}
+
+func (db *DB) deleteItem(id int64) error {
+	_, err := db.Exec("DELETE FROM items WHERE id = $1", id)
+	return err
+}
+
+func (db *DB) getItem(id int64, out *Item) error {
+	return db.Get(out, "SELECT * FROM items WHERE id = $1 ORDER BY id LIMIT 1", id)
+}
+
+func (db *DB) getItems(feedID int64, limit int, out *[]Item) error {
+	return db.Select(out, "SELECT * FROM items ORDER BY id LIMIT $1", limit)
 }

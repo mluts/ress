@@ -1,20 +1,19 @@
 package main
 
 import (
-	// "strconv"
 	"database/sql"
 	"testing"
 )
 
 func TestDB_migrations_work(t *testing.T) {
-	_, err := _OpenDatabase("sqlite3", ":memory:")
+	_, err := OpenDatabase("sqlite3", ":memory:")
 	if err != nil {
 		t.Error("DB was not initialized:", err)
 	}
 }
 
-func opendb() *_DB {
-	db, err := _OpenDatabase("sqlite3", ":memory:")
+func opendb() *DB {
+	db, err := OpenDatabase("sqlite3", ":memory:")
 	if err != nil {
 		panic(err)
 	}
@@ -26,30 +25,37 @@ func nullstring(str string) sql.NullString {
 }
 
 var feedExamples = []struct {
-	feed _Feed
+	feed Feed
 	ok   bool
 }{
-	{_Feed{
-		Title: nullstring("The title1"),
-		Link:  nullstring("The link1")}, true},
+	{Feed{
+		Title: "The title1",
+		Link:  "The link1"}, true},
 
-	{_Feed{
-		Title: nullstring("The title1")}, false},
+	{Feed{
+		Title: "The title1"}, false},
 
-	{_Feed{
-		Link: nullstring("The title1")}, false},
+	{Feed{
+		Link: "The title1"}, false},
 
-	{_Feed{
-		Title: nullstring("The title1"),
-		Link:  nullstring("The link1")}, false},
+	{Feed{
+		Title: "The title1",
+		Link:  "The link1"}, false},
 
-	{_Feed{
-		Title: nullstring("The title1"),
-		Link:  nullstring("The link2")}, true},
+	{Feed{
+		Title: "The title1",
+		Link:  "The link2"}, true},
 
-	{_Feed{
-		Title: nullstring("The title2"),
-		Link:  nullstring("The link3")}, true},
+	{Feed{
+		Title: "The title2",
+		Link:  "The link3"}, true},
+}
+
+var itemExamples = []Item{
+	{
+		Title: "The Title 1",
+		Link:  "The Link 1",
+	},
 }
 
 func TestDB_createFeed(t *testing.T) {
@@ -89,7 +95,7 @@ func TestDB_getFeed(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	out := _Feed{}
+	out := Feed{}
 
 	err = db.getFeed(id, &out)
 	if err != nil {

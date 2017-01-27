@@ -144,7 +144,7 @@ func (a *App) unmarkItemRead(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (a *App) handler() http.Handler {
+func (a *App) Handler() http.Handler {
 	var routes = []route{
 		{http.MethodGet, "/feeds", a.listFeeds},
 		{http.MethodPost, "/feeds", a.createFeed},

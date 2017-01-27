@@ -35,19 +35,19 @@ func init() {
 	handler = app.handler()
 }
 
-func feedsCount() (count int64) {
-	err := db.Get(&count, "SELECT COUNT(id) FROM feeds")
+func must(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func feedsCount() (count int64) {
+	must(db.Get(&count, "SELECT COUNT(id) FROM feeds"))
 	return
 }
 
 func itemsCount() (count int64) {
-	err := db.Get(&count, "SELECT COUNT(id) FROM items")
-	if err != nil {
-		panic(err)
-	}
+	must(db.Get(&count, "SELECT COUNT(id) FROM items"))
 	return
 }
 
@@ -76,7 +76,7 @@ func assertIntEq(t *testing.T, expected, actual int) {
 	}
 }
 
-func TestFeed_api_list(t *testing.T) {
+func TestAPI_feeds(t *testing.T) {
 	clearDatabase()
 
 	feed := feedExamples[0].feed
@@ -104,7 +104,7 @@ func TestFeed_api_list(t *testing.T) {
 	}
 }
 
-func TestFeed_api_create(t *testing.T) {
+func TestAPI_create_feed(t *testing.T) {
 	var (
 		err   error
 		b     []byte
@@ -134,7 +134,7 @@ func TestFeed_api_create(t *testing.T) {
 	}
 }
 
-func TestFeed_api_show(t *testing.T) {
+func TestAPI_show_feed(t *testing.T) {
 	clearDatabase()
 	feed := feedExamples[0].feed
 	id, err := app.db.createFeed(&feed)
@@ -159,7 +159,7 @@ func TestFeed_api_show(t *testing.T) {
 	}
 }
 
-func TestFeed_api_feed_items(t *testing.T) {
+func TestAPI_feed_items(t *testing.T) {
 	clearDatabase()
 	feed := feedExamples[0].feed
 	id, err := app.db.createFeed(&feed)
@@ -169,7 +169,7 @@ func TestFeed_api_feed_items(t *testing.T) {
 	}
 
 	for _, item := range itemExamples {
-		err = db.createItem(id, &item)
+		_, err = db.createItem(id, &item)
 		if err != nil {
 			panic(err)
 		}
@@ -206,7 +206,7 @@ func TestFeed_api_feed_items(t *testing.T) {
 	}
 }
 
-func TestFeed_api_delete_feed(t *testing.T) {
+func TestAPI_delete_feed(t *testing.T) {
 	clearDatabase()
 
 	feed := feedExamples[0].feed
@@ -220,7 +220,7 @@ func TestFeed_api_delete_feed(t *testing.T) {
 	}
 
 	for _, item := range itemExamples {
-		err := db.createItem(id, &item)
+		_, err := db.createItem(id, &item)
 		if err != nil {
 			t.Errorf("Expected to save feed, but had an error: %v", err)
 		}
@@ -238,4 +238,66 @@ func TestFeed_api_delete_feed(t *testing.T) {
 	assertRequestCode(t, rec, 200)
 	assertIntEq(t, 0, int(feedsCount()))
 	assertIntEq(t, 0, int(itemsCount()))
+}
+
+func TestAPI_mark_item_read(t *testing.T) {
+	var (
+		err        error
+		id, itemID int64
+	)
+	clearDatabase()
+
+	feed := feedExamples[0].feed
+	id, err = db.createFeed(&feed)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	item := itemExamples[0]
+
+	itemID, err = db.createItem(id, &item)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := db.getItem(id, &item); err != nil {
+		t.Fatal(err)
+	}
+
+	if !item.Unread {
+		t.Error("Item should be unread")
+	}
+
+	path := strings.Join([]string{
+		"/feeds",
+		strconv.Itoa(int(id)),
+		"items",
+		strconv.Itoa(int(itemID)),
+		"read"}, "/")
+
+	rec := doRequest("POST", path, nil)
+
+	assertRequestCode(t, rec, 200)
+
+	i := Item{}
+	err = db.getItem(itemID, &i)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if i.Unread {
+		t.Error("Item should be marked as read")
+	}
+
+	rec = doRequest("DELETE", path, nil)
+	assertRequestCode(t, rec, 200)
+
+	err = db.getItem(itemID, &i)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !i.Unread {
+		t.Error("Item should be marked as unread")
+	}
 }

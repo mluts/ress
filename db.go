@@ -137,14 +137,19 @@ func (db *DB) getFeeds(limit int, out *[]Feed) error {
 	return db.Select(out, "SELECT * FROM feeds ORDER BY id LIMIT $1", limit)
 }
 
-func (db *DB) createItem(feedID int64, item *Item) error {
+func (db *DB) createItem(feedID int64, item *Item) (int64, error) {
 	item.FeedID = feedID
 
-	_, err := db.NamedExec(`
+	result, err := db.NamedExec(`
 		INSERT INTO items (feed_id, title, link, description, content)
 			VALUES (:feed_id, :title, :link, :description, :content)
 	`, item)
-	return err
+
+	if err != nil {
+		return 0, err
+	}
+
+	return result.LastInsertId()
 }
 
 func (db *DB) updateItem(item *Item) error {
@@ -170,7 +175,7 @@ func (db *DB) getItems(feedID int64, limit int, out *[]Item) error {
 
 func (db *DB) markItemRead(itemID int64, read bool) (err error) {
 	if read {
-		_, err = db.Exec("INSERT INTO item_reads VALUES ( $1 )", itemID)
+		_, err = db.Exec("INSERT INTO item_reads ( item_id ) VALUES ( $1 )", itemID)
 	} else {
 		_, err = db.Exec("DELETE FROM item_reads WHERE item_id = $1", itemID)
 	}

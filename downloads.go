@@ -40,7 +40,7 @@ func (a *App) handleFeedDownload(url string, feed *gofeed.Feed, err error) {
 	for _, item := range feed.Items {
 		newItem := Item{}
 		translateItem(item, &newItem)
-		err := a.db.createItem(f.ID, &newItem)
+		_, err := a.db.createItem(f.ID, &newItem)
 		if err != nil {
 			log.Printf("Failed to create an item: %v", err)
 		}

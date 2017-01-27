@@ -111,6 +111,7 @@ func (a *App) handler() http.Handler {
 		{http.MethodGet, "/feeds", a.listFeeds},
 		{http.MethodPost, "/feeds", a.createFeed},
 		{http.MethodGet, "/feeds/{id:[0-9]+}", a.showFeed},
+		{http.MethodDelete, "/feeds/{id:[0-9]+}", a.deleteFeed},
 		{http.MethodGet, "/feeds/{id:[0-9]+}/items", a.feedItems}}
 
 	r := mux.NewRouter()

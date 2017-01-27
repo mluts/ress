@@ -54,8 +54,13 @@ func OpenDatabase(dialect, dest string) (db *DB, err error) {
 	}
 
 	sqldb, err = sql.Open(dialect, dest)
-	_, err = migrate.Exec(sqldb, dialect, sqlite.Migrations, migrate.Up)
-	if err != nil {
+
+	// Foreign keys are disabled by default in sqlite3
+	if _, err = sqldb.Exec("PRAGMA foreign_keys = ON"); err != nil {
+		return
+	}
+
+	if _, err = migrate.Exec(sqldb, dialect, sqlite.Migrations, migrate.Up); err != nil {
 		return
 	}
 

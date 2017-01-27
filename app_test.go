@@ -199,3 +199,37 @@ func TestFeed_api_feed_items(t *testing.T) {
 		t.Errorf("Feed should not be included in the json")
 	}
 }
+
+func TestFeed_api_delete_feed(t *testing.T) {
+	clearDatabase()
+	feed := feedExamples[0].feed
+	id, err := app.db.createFeed(&feed)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, item := range itemExamples {
+		err := app.db.createItem(id, &item)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	path := strings.Join([]string{
+		"/feeds",
+		strconv.Itoa(int(id))}, "/")
+
+	rec := doRequest("DELETE", path, nil)
+
+	if rec.Code != 200 {
+		t.Errorf("Expected to see 200, but seeing %d", rec.Code)
+	}
+
+	if feedsCount() != 0 {
+		t.Error("Expected to see 0 feeds, but have", feedsCount())
+	}
+
+	if itemsCount() != 0 {
+		t.Error("Expected to see 0 items, but have", itemsCount())
+	}
+}

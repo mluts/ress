@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	// sqlite3 support
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/mluts/ress/db/sqlite"
 	"github.com/rubenv/sql-migrate"
@@ -73,12 +74,6 @@ func OpenDatabase(dialect, dest string) (db *DB, err error) {
 	db = &DB{sqlxdb}
 
 	return
-}
-
-func (db *DB) feedPresent(link string) bool {
-	var count int64
-	db.Get(&count, "SELECT count(id) FROM feeds WHERE link = $1", link)
-	return count > 0
 }
 
 func (db *DB) createFeed(feed *Feed) (id int64, err error) {

@@ -32,7 +32,7 @@ func init() {
 
 	db = app.db
 
-	handler = app.handler()
+	handler = app.Handler()
 }
 
 func must(err error) {

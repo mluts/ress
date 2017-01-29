@@ -42,18 +42,18 @@ func must(err error) {
 }
 
 func feedsCount() (count int64) {
-	must(db.Get(&count, "SELECT COUNT(id) FROM feeds"))
+	must(db.db.Get(&count, "SELECT COUNT(id) FROM feeds"))
 	return
 }
 
 func itemsCount() (count int64) {
-	must(db.Get(&count, "SELECT COUNT(id) FROM items"))
+	must(db.db.Get(&count, "SELECT COUNT(id) FROM items"))
 	return
 }
 
 func clearDatabase() {
-	db.MustExec("DELETE FROM feeds")
-	db.MustExec("DELETE FROM items")
+	db.db.MustExec("DELETE FROM feeds")
+	db.db.MustExec("DELETE FROM items")
 }
 
 func doRequest(method, target string, body []byte) *httptest.ResponseRecorder {

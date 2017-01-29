@@ -13,7 +13,9 @@ import (
 
 // DB is a database wrapper to provide application specific methods for it
 type DB struct {
-	*sqlx.DB
+	db    *sqlx.DB
+	named map[string]*sqlx.NamedStmt
+	stmt  map[string]*sqlx.Stmt
 }
 
 // Feed represents a rss feed in our database
@@ -71,18 +73,44 @@ func OpenDatabase(dialect, dest string) (db *DB, err error) {
 	}
 
 	sqlxdb = sqlx.NewDb(sqldb, dialect)
-	db = &DB{sqlxdb}
+	db = &DB{db: sqlxdb}
 
+	return
+}
+
+func (db *DB) prepareNamed(name, query string) (s *sqlx.NamedStmt) {
+	if s, ok := db.named[name]; ok {
+		return s
+	}
+
+	s, err := db.db.PrepareNamed(query)
+	if err != nil {
+		panic(err)
+	}
+	return
+}
+
+func (db *DB) prepare(name, query string) (s *sqlx.Stmt) {
+	if s, ok := db.stmt[name]; ok {
+		return s
+	}
+
+	s, err := db.db.Preparex(query)
+	if err != nil {
+		panic(err)
+	}
 	return
 }
 
 func (db *DB) createFeed(feed *Feed) (id int64, err error) {
 	var result sql.Result
 
-	result, err = db.NamedExec(`
+	stmt := db.prepareNamed("createFeed", `
 		INSERT INTO feeds (link, title, error, active)
 			VALUES (:link, :title, :error, :active)
-	`, feed)
+	`)
+
+	result, err = stmt.Exec(feed)
 
 	if err != nil {
 		return
@@ -96,12 +124,14 @@ func (db *DB) createFeed(feed *Feed) (id int64, err error) {
 func (db *DB) updateFeed(id int64, feed *Feed) error {
 	feed.ID = id
 
-	_, err := db.NamedExec(`
+	stmt := db.prepareNamed("updateFeed", `
 		UPDATE feeds SET
 			(link, title, error, active)
 			VALUES (:link, :title, :error, :active)
 			WHERE id = :id
-	`, feed)
+	`)
+
+	_, err := stmt.Exec(feed)
 
 	return err
 }
@@ -116,29 +146,43 @@ func (db *DB) createOrUpdateFeedByLink(link string, feed *Feed) (int64, error) {
 }
 
 func (db *DB) deleteFeed(id int64) error {
-	_, err := db.Exec("DELETE FROM feeds WHERE id = $1", id)
+	stmt := db.prepare("deleteFeed", `
+		DELETE FROM feeds WHERE id = $1
+	`)
+	_, err := stmt.Exec(id)
 	return err
 }
 
 func (db *DB) getFeed(id int64, out *Feed) error {
-	return db.Get(out, "SELECT * FROM feeds WHERE id = $1 ORDER BY id LIMIT 1", id)
+	stmt := db.prepare(
+		"getFeed",
+		"SELECT * FROM feeds WHERE id = $1 ORDER BY id LIMIT 1")
+	return stmt.Get(out, id)
 }
 
 func (db *DB) getFeedByLink(link string, out *Feed) error {
-	return db.Get(out, "SELECT * FROM feeds WHERE link = $1 ORDER BY id LIMIT 1", link)
+	stmt := db.prepare(
+		"getFeedByLink",
+		"SELECT * FROM feeds WHERE link = $1 ORDER BY id LIMIT 1")
+	return stmt.Get(out, link)
 }
 
 func (db *DB) getFeeds(limit int, out *[]Feed) error {
-	return db.Select(out, "SELECT * FROM feeds ORDER BY id LIMIT $1", limit)
+	stmt := db.prepare(
+		"getFeeds",
+		"SELECT * FROM feeds ORDER BY id LIMIT $1")
+	return stmt.Select(out, limit)
 }
 
 func (db *DB) createItem(feedID int64, item *Item) (int64, error) {
 	item.FeedID = feedID
 
-	result, err := db.NamedExec(`
-		INSERT INTO items (feed_id, title, link, description, content)
-			VALUES (:feed_id, :title, :link, :description, :content)
-	`, item)
+	stmt := db.prepareNamed(
+		"createItem",
+		`INSERT INTO items (feed_id, title, link, description, content)
+		 VALUES (:feed_id, :title, :link, :description, :content)`)
+
+	result, err := stmt.Exec(item)
 
 	if err != nil {
 		return 0, err
@@ -148,31 +192,38 @@ func (db *DB) createItem(feedID int64, item *Item) (int64, error) {
 }
 
 func (db *DB) updateItem(item *Item) error {
-	_, err := db.NamedExec(`
-		UPDATE items SET (title, link, description, content)
-			VALUES (link, description, content)
-	`, item)
+	stmt := db.prepareNamed(
+		"updateItem",
+		`UPDATE items SET (title, link, description, content)
+		VALUES (:link, :description, :content)`)
+
+	_, err := stmt.Exec(item)
 	return err
 }
 
 func (db *DB) deleteItem(id int64) error {
-	_, err := db.Exec("DELETE FROM items WHERE id = $1", id)
+	stmt := db.prepare("deleteItem", "DELETE FROM items WHERE id = $1")
+	_, err := stmt.Exec(id)
 	return err
 }
 
 func (db *DB) getItem(id int64, out *Item) error {
-	return db.Get(out, "SELECT * FROM items_view WHERE id = $1 ORDER BY id LIMIT 1", id)
+	stmt := db.prepare("getItem", "SELECT * FROM items_view WHERE id = $1 ORDER BY id LIMIT 1")
+	return stmt.Get(out, id)
 }
 
 func (db *DB) getItems(feedID int64, limit int, out *[]Item) error {
-	return db.Select(out, "SELECT * FROM items_view ORDER BY id LIMIT $1", limit)
+	stmt := db.prepare("getItems", "SELECT * FROM items_view ORDER BY id LIMIT $1")
+	return stmt.Select(out, limit)
 }
 
 func (db *DB) markItemRead(itemID int64, read bool) (err error) {
 	if read {
-		_, err = db.Exec("INSERT INTO item_reads ( item_id ) VALUES ( $1 )", itemID)
+		stmt := db.prepare("markItemRead", "INSERT INTO item_reads ( item_id ) VALUES ( $1 )")
+		_, err = stmt.Exec(itemID)
 	} else {
-		_, err = db.Exec("DELETE FROM item_reads WHERE item_id = $1", itemID)
+		stmt := db.prepare("markItemUnread", "DELETE FROM item_reads WHERE item_id = $1")
+		_, err = stmt.Exec(itemID)
 	}
 
 	return

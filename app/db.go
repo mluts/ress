@@ -151,10 +151,13 @@ func (db *DB) createItem(feedID int64, item *Item) (int64, error) {
 	return result.LastInsertId()
 }
 
-func (db *DB) updateItem(item *Item) error {
+func (db *DB) updateItem(id int64, item *Item) error {
+	item.ID = id
+
 	_, err := db.NamedExec(`
-		UPDATE items SET (title, link, description, content)
-			VALUES (link, description, content)
+		UPDATE items SET (title, link, description, content) =
+			(:title, :link, :description, :content)
+			WHERE id = :id
 	`, item)
 	return err
 }

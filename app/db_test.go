@@ -134,3 +134,37 @@ func TestDB_updateFeed(t *testing.T) {
 		t.Error("Expected to have updated title")
 	}
 }
+
+func TestDB_item(t *testing.T) {
+	var (
+		item   = itemExamples[0]
+		feed   = feedExamples[0].feed
+		err    error
+		feedID int64
+		id     int64
+	)
+	db := opendb()
+
+	feedID, err = db.createFeed(&feed)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	id, err = db.createItem(feedID, &item)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	newTitle := "The New Title"
+	item.Title = newTitle
+	err = db.updateItem(id, &item)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	out := Item{}
+	db.getItem(id, &out)
+	if out.Title != newTitle {
+		t.Errorf("Title should be %s, but have %s", newTitle, out.Title)
+	}
+}

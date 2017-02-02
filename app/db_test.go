@@ -106,3 +106,31 @@ func TestDB_getFeed(t *testing.T) {
 		t.Error("Expected to have link %s, but have %s", example.Link, out.Link)
 	}
 }
+
+func TestDB_updateFeed(t *testing.T) {
+	var (
+		example = feedExamples[0].feed
+		err     error
+		id      int64
+	)
+
+	db := opendb()
+
+	id, err = db.createFeed(&example)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	example.Title = "New Title"
+	err = db.updateFeed(id, &example)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	out := Feed{}
+	db.getFeed(id, &out)
+
+	if out.Title != example.Title {
+		t.Error("Expected to have updated title")
+	}
+}

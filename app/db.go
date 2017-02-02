@@ -103,9 +103,8 @@ func (db *DB) updateFeed(id int64, feed *Feed) error {
 
 	_, err := db.NamedExec(`
 		UPDATE feeds SET
-			(link, title, error, active)
-			VALUES (:link, :title, :error, :active)
-			WHERE id = :id
+			(link, title, error, active) =
+			(:link, :title, :error, :active) WHERE id = :id
 	`, feed)
 
 	return err

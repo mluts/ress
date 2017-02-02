@@ -1,1 +1,3 @@
-build: gopherjs serve --http 0.0.0.0:8080 -m -v
+webpack: webpack -w
+gopherjs: gopherjs -w -v -m build -o static/assets/js/app.js
+ress: ress

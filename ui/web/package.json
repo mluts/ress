@@ -1,0 +1,15 @@
+{
+  "name": "ress-web",
+  "version": "0.1.0",
+  "description": "Web UI for ress",
+  "main": "index.js",
+  "scripts": {},
+  "author": "Michael Lutsiuk",
+  "license": "MIT",
+  "dependencies": {
+    "jquery": "^3.1.1"
+  },
+  "devDependencies": {
+    "webpack": "^2.2.1"
+  }
+}

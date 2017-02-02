@@ -1,3 +1,3 @@
 /node_modules
-/js/*.js
-/js/*.map
+/static/assets/js/app*
+/static/assets/js/bundle*

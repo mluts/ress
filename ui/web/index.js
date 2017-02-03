@@ -1,1 +1,0 @@
-window.jQuery = require('jquery');

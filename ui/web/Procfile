@@ -1,3 +1,2 @@
 webpack: webpack -w
-gopherjs: gopherjs -w -v -m build -o static/assets/js/app.js
 ress: ress

@@ -9,6 +9,15 @@
   "author": "Michael Lutsiuk",
   "license": "MIT",
   "devDependencies": {
+    "jasmine": "^2.5.3",
+    "karma": "^1.4.1",
+    "karma-chrome-launcher": "^2.0.0",
+    "karma-jasmine": "^1.1.0",
+    "karma-webpack": "^2.0.2",
     "webpack": "^2.2.1"
+  },
+  "dependencies": {
+    "vue": "^2.1.10",
+    "vue-router": "^2.2.0"
   }
 }

@@ -1,0 +1,14 @@
+{
+  "name": "ress-web-ui",
+  "version": "0.1.0",
+  "description": "Web UI for ress",
+  "main": "webui/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Michael Lutsiuk",
+  "license": "MIT",
+  "devDependencies": {
+    "webpack": "^2.2.1"
+  }
+}

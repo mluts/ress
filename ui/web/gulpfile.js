@@ -2,8 +2,11 @@ var gulp    = require('gulp'),
     webpack = require('webpack-stream'),
     sass    = require('gulp-sass'),
     exec    = require('child_process').exec,
-    webpackCfg = require('./webpack.config.js'),
-    jasmineBrowser = require('gulp-jasmine-browser');
+    webpackCfg = require('./webpack.config.js');
+
+function logError(err) {
+  console.error(err);
+}
 
 gulp.task('webpack', function() {
   return gulp.src('src/index.js')
@@ -16,6 +19,7 @@ gulp.task('webpack:watch', function() {
 
   return gulp.src('src/index.js')
     .pipe(webpack(webpackCfg))
+    .on('error', logError)
     .pipe(gulp.dest('static/assets/js'));
 });
 
@@ -29,26 +33,5 @@ gulp.task('sass:watch', function() {
   gulp.watch('./src/scss/*.scss', ['sass']);
 });
 
-gulp.task('ress', function(cb) {
-  exec('ress', function(err) {
-    if(err) return cb(err);
-    cb();
-  });
-});
-
-gulp.task('jasmine', function() {
-  var JasminePlugin = require('gulp-jasmine-browser/webpack/jasmine-plugin');
-  var plugin = new JasminePlugin();
-
-  webpackCfg.watch = true;
-  webpackCfg.output = {filename: 'spec.js'};
-  webpackCfg.plugins = [plugin];
-
-  return gulp.src(['spec/**/*pec.js'])
-    .pipe(webpack(webpackCfg))
-    .pipe(jasmineBrowser.specRunner())
-    .pipe(jasmineBrowser.server({port: 8888, whenReady: plugin.whenReady}));
-});
-
 gulp.task('default', ['webpack', 'sass']);
-gulp.task('watch', ['webpack:watch', 'sass:watch', 'ress']);
+gulp.task('watch', ['webpack:watch', 'sass:watch']);

@@ -25,7 +25,8 @@ gulp.task('webpack:watch', function() {
 
 gulp.task('sass', function() {
   return gulp.src('src/scss/app.scss')
-    .pipe(sass({includePaths: ['./src/scss']}).on('error', sass.logError))
+    .pipe(sass({includePaths: ['./src/scss']})
+    .on('error', sass.logError))
     .pipe(gulp.dest('./static/assets/css'));
 });
 

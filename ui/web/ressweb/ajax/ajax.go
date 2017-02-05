@@ -1,4 +1,4 @@
-package main
+package ajax
 
 import (
 	"errors"
@@ -6,45 +6,46 @@ import (
 )
 
 // XHR ajax implementation
-type XHR struct {
-	o *js.Object
-}
+type XHR struct{}
 
 // Response returned by XHR
 type Response struct {
-	Code int
-	Body interface{}
+	Code  int
+	Body  interface{}
+	Error error
 }
 
 // New XHR request
 func New() *XHR {
-	return &XHR{js.Global.Get("XMLHttpRequest").New()}
+	return &XHR{}
 }
 
-// AjaxJSONRequest makes  XHR request with json responseType "json"
-func (xhr *XHR) AjaxJSONRequest(method, url string) (response *Response, err error) {
-	var ch chan int
+// JSONRequest makes  XHR request with json responseType "json"
+func (x *XHR) JSONRequest(method, url string) chan *Response {
+	var (
+		ch  chan *Response
+		err error
+		xhr *js.Object
+	)
+	ch = make(chan *Response, 1)
 
-	xhr.o.Call("open", method, url)
-	xhr.o.Set("responseType", "json")
-	xhr.o.Set("onloadend", func() { ch <- 1 })
-	xhr.o.Set("onerror", func() {
+	xhr = js.Global.Get("XMLHttpRequest").New()
+
+	xhr.Call("open", method, url)
+	xhr.Set("responseType", "json")
+	xhr.Set("onloadend", func() {
+		go func() {
+			ch <- &Response{
+				xhr.Get("status").Int(),
+				xhr.Get("response").Interface(),
+				err,
+			}
+		}()
+	})
+	xhr.Set("onerror", func() {
 		err = errors.New("An error occured during the request")
 	})
-	<-ch
+	xhr.Call("send")
 
-	return &Response{
-		xhr.o.Get("status").Int(),
-		xhr.o.Get("response").Interface(),
-	}, err
-}
-
-// GetCode returns HTTP status code
-func (r *Response) GetCode() int {
-	return r.Code
-}
-
-// GetBody returns response body
-func (r *Response) GetBody() interface{} {
-	return r.Body
+	return ch
 }

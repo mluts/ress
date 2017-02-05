@@ -8,4 +8,19 @@ describe('API', function() {
       expect(fn('//', 'a', '///', 'b', 'c')).toBe('/a/b/c');
     });
   });
+
+  describe('ajax methods', function() {
+    beforeEach(function() {
+      jasmine.Ajax.install();
+    });
+
+    afterEach(function() {
+      jasmine.Ajax.uninstall();
+    });
+
+    describe('getFeeds', function() {
+      it('gets the feeds from expected url', function() {
+      });
+    });
+  });
 });

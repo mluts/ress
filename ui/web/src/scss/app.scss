@@ -1,12 +1,27 @@
-@import "bootstrap.min";
+@import "./bootstrap.min";
 
 #feeds {
-	ul {
-		list-style: none;
-		padding-left: 0px;
-	}
+  ul {
+    list-style: none;
+    padding-left: 0px;
+  }
 
-	.feed.selected {
-		font-weight: bold;
-	}
+  .feed.selected {
+    font-weight: bold;
+  }
+}
+
+#context-menu > div {
+  background: #222;
+  ul {
+    margin: 1px 5px;
+    list-style: none;
+    padding: 0;
+    li {
+      cursor: pointer;
+      &:hover {
+        background-color: #333;
+      }
+    }
+  }
 }

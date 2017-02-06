@@ -1,5 +1,3 @@
-import React from "react";
-import ReactDOM from 'react-dom';
 import ContextMenu from "../../src/js/components/ContextMenu";
 
 describe('ContextMenu', function() {

@@ -5,7 +5,7 @@ class Modal extends React.Component {
   constructor(props) {
     super(props);
     this.state = { show: props.show };
-    this.handleManualHide = this.handleManualHide.bind(this);
+    this.handleHide = this.handleHide.bind(this);
   }
 
   showHide() {
@@ -16,15 +16,18 @@ class Modal extends React.Component {
 
   componentDidMount() {
     this.showHide();
-    $(this.element).on('hidden.bs.modal', this.handleManualHide);
+    $(this.element).on('hidden.bs.modal', this.handleHide);
   }
 
   componentWillUnmount() {
-    $(this.element).off('hidden.bs.modal', this.handleManualHide);
+    $(this.element).off('hidden.bs.modal', this.handleHide);
   }
 
-  handleManualHide() {
+  handleHide() {
     this.setState({show: false});
+    if(this.props.onHide) {
+      this.props.onHide();
+    }
   }
 
   componentWillReceiveProps(newProps) {
@@ -53,5 +56,15 @@ class Modal extends React.Component {
     );
   }
 }
+
+Modal.propTypes = {
+  show: React.PropTypes.bool.isRequired,
+  title: React.PropTypes.string.isRequired,
+  body: React.PropTypes.oneOfType([
+    React.PropTypes.string,
+    React.PropTypes.element
+  ]).isRequired,
+  onHide: React.PropTypes.func
+};
 
 module.exports = Modal;

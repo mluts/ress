@@ -1,5 +1,3 @@
-import React from "react";
-import ReactDOM from 'react-dom';
 import App from '../../src/js/components/App';
 
 describe('App', function() {

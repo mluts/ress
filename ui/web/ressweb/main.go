@@ -16,9 +16,17 @@ func main() {
 	}
 
 	ui := js.Global.Get("ui")
-	ui.Call("renderFeeds", app.feeds)
+
+	render := func() {
+		ui.Call("render", map[string]interface{}{
+			"feeds": app.feeds,
+		})
+	}
+
+	render()
+
 	ui.Call("registerHandler", "onSelectFeed", func(feed *js.Object) {
 		app.selectFeed(feed.Get("ID").Int())
-		ui.Call("renderFeeds", app.feeds)
+		render()
 	})
 }

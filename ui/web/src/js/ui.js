@@ -1,8 +1,6 @@
 var React = require('react'),
   ReactDOM = require('react-dom'),
-  Feeds = require('./components/Feeds'),
-  ContextMenu = require('./components/ContextMenu'),
-  Modal = require('./components/bootstrap/Modal'),
+  App = require('./components/App'),
   log = require('./log');
 
 var ui = {
@@ -34,47 +32,14 @@ var ui = {
     };
   },
 
-  renderFeeds: function(data) {
+  render: function(data) {
     ReactDOM.render(
       // jshint ignore:start
-      <Feeds onFeedContextMenu={ui.showFeedContextMenu}
-      onSelectFeed={ui.getHandler("onSelectFeed")} data={data} />,
+      <App feeds={data.feeds} onSelectFeed={this.getHandler('onSelectFeed')} />,
       // jshint ignore:end
-      document.getElementById("feeds")
+      document.getElementById('root')
     );
-  },
-
-  showContextMenu: function(options, callback) {
-    ReactDOM.render(
-      // jshint ignore:start
-      <ContextMenu top={ui.mouseY} left={ui.mouseX}
-      onSelectOption={callback} show={true} options={options} />,
-      // jshint ignore:end
-      document.getElementById("context-menu")
-    );
-  },
-
-  showFeedContextMenu: function(feed) {
-    const options = {
-      editFeed: "Edit Feed"
-    };
-
-    ui.showContextMenu(options, function(option) {
-      switch(option) {
-        case "editFeed":
-          console.log("Edit feed!", feed);
-          break;
-      }
-    });
-  },
-
-  mouseY: 0,
-  mouseX: 0
+  }
 };
-
-window.document.addEventListener('mousemove', (e) => {
-  ui.mouseY = e.clientY;
-  ui.mouseX = e.clientX;
-});
 
 module.exports = ui;

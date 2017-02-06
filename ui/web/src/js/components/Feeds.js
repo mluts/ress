@@ -53,7 +53,7 @@ class Feeds extends React.Component {
       );
     });
     // jshint ignore:start
-    return <ul>{feeds}</ul>;
+    return <ul className="feeds">{feeds}</ul>;
     // jshint ignore:end
   }
 }

@@ -1,17 +1,15 @@
 @import "./bootstrap.min";
 
-#feeds {
-  ul {
-    list-style: none;
-    padding-left: 0px;
-  }
+.feeds {
+  list-style: none;
+  padding-left: 0px;
 
   .feed.selected {
     font-weight: bold;
   }
 }
 
-#context-menu > div {
+.context-menu {
   background: #222;
   ul {
     margin: 1px 5px;

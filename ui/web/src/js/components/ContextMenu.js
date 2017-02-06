@@ -69,7 +69,7 @@ class ContextMenu extends React.Component {
 
     return (
       // jshint ignore:start
-      <div style={this.style()}>
+      <div className="context-menu" style={this.style()}>
       <ul>{options}</ul>
       </div>
       // jshint ignore:end

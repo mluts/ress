@@ -16,12 +16,12 @@ func main() {
 		DownloadInterval:    time.Second * 30,
 		DownloadConcurrency: 10}
 
-	app, err := NewApp(config)
+	a, err := app.NewApp(config)
 	if err != nil {
 		log.Fatal("Can't initialize the app:", err)
 	}
 
-	app.Run()
+	a.Run()
 	log.Print("Listening at", addr)
-	log.Fatal(http.ListenAndServe(addr, app.handler()))
+	log.Fatal(http.ListenAndServe(addr, a.Handler()))
 }

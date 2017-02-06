@@ -1,0 +1,12 @@
+@import "bootstrap.min";
+
+#feeds {
+	ul {
+		list-style: none;
+		padding-left: 0px;
+	}
+
+	.feed.selected {
+		font-weight: bold;
+	}
+}

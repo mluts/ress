@@ -1,0 +1,3 @@
+ress: ress
+gulp: gulp watch
+gopherjs: gopherjs build -w -o static/assets/js/ressweb.js github.com/mluts/ress/ui/web/ressweb/ajax github.com/mluts/ress/ui/web/ressweb/console github.com/mluts/ress/ui/web/ressweb

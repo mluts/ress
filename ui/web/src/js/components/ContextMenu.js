@@ -47,6 +47,10 @@ class ContextMenu extends React.Component {
 		this.setState({show: false});
 	}
 
+	componentWillReceiveProps(props) {
+		this.setState({show: props.show});
+	}
+
 	render() {
 		if(!this.state.show) {
 			return null;

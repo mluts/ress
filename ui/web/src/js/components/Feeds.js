@@ -4,6 +4,7 @@ class Feed extends React.Component {
 	constructor(props) {
 		super(props);
 		this.selectFeed = this.selectFeed.bind(this);
+		this.showContextMenu = this.showContextMenu.bind(this);
 	}
 
 	className() {
@@ -18,10 +19,17 @@ class Feed extends React.Component {
 		this.props.onSelectFeed(this.props.data);
 	}
 
+	showContextMenu(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		console.log(e);
+		this.props.onContextMenu(this.props.data);
+	}
+
 	render() {
 		return (
 			// jshint ignore:start
-			<div onClick={this.selectFeed} className={this.className()}>
+			<div onContextMenu={this.showContextMenu} onClick={this.selectFeed} className={this.className()}>
 				<span>{this.props.data.Title}</span>
 			</div>
 			// jshint ignore:end
@@ -39,7 +47,7 @@ class Feeds extends React.Component {
 			return (
 				// jshint ignore:start
 				<li key={i.toString()}>
-					<Feed onSelectFeed={this.props.onSelectFeed} data={f} />
+					<Feed onContextMenu={this.props.onFeedContextMenu} onSelectFeed={this.props.onSelectFeed} data={f} />
 				</li>
 				// jshint ignore:end
 			);

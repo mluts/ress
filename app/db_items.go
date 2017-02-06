@@ -17,11 +17,13 @@ func (db *DB) createItem(feedID int64, item *Item) (int64, error) {
 	return result.LastInsertId()
 }
 
-func (db *DB) updateItem(item *Item) error {
+func (db *DB) updateItem(id int64, item *Item) error {
+	item.ID = id
+
 	stmt := db.prepareNamed(
 		"updateItem",
 		`UPDATE items SET (title, link, description, content) =
-		 (:link, :description, :content)`)
+		(:title, :link, :description, :content)`)
 
 	_, err := stmt.Exec(item)
 	return err

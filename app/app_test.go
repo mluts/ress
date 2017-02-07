@@ -112,9 +112,7 @@ func TestAPI_create_feed(t *testing.T) {
 	)
 	clearDatabase()
 
-	feed := feedExamples[0].feed
-
-	b, err = json.Marshal(feed)
+	b, err = json.Marshal(&Feed{Link: "https://example.com/feed"})
 	if err != nil {
 		panic(err)
 	}

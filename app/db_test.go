@@ -36,7 +36,7 @@ var feedExamples = []struct {
 		Title: "The title1"}, false},
 
 	{Feed{
-		Link: "The title1"}, false},
+		Link: "The title1"}, true},
 
 	{Feed{
 		Title: "The title1",

@@ -14,7 +14,7 @@ var Migrations = &migrate.MemoryMigrationSource{
 				(
 					id INTEGER PRIMARY KEY,
 					link TEXT NOT NULL CHECK(length(link) > 0),
-					title TEXT NOT NULL CHECK(length(title) > 0),
+					title TEXT NOT NULL,
 					author TEXT NOT NULL DEFAULT "",
 					active BOOLEAN 	NOT NULL DEFAULT TRUE,
 					error TEXT NOT NULL DEFAULT "",

@@ -29,12 +29,17 @@ func (a *App) handleFeedDownload(url string, feed *gofeed.Feed, err error) {
 	}
 
 	if err != nil {
-		a.downloader.Discard(url)
 		a.db.updateFeed(f.ID, &Feed{
 			Error:  err.Error(),
 			Active: false,
 		})
 		return
+	}
+
+	if e := a.db.updateFeed(f.ID, &Feed{
+		Title: feed.Title,
+	}); e != nil {
+		log.Printf("Can't save feed: %v", e)
 	}
 
 	for _, item := range feed.Items {

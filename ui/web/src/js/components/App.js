@@ -1,6 +1,7 @@
 import React from "react";
 import Feeds from "./Feeds";
 import ContextMenu from "./ContextMenu";
+import Subscribe from "./Subscribe";
 
 class App extends React.Component {
   constructor(props) {
@@ -65,6 +66,7 @@ class App extends React.Component {
 
         <div className="col-md-9">
           <div className="row">
+            <Subscribe onSubmit={this.props.onSubscribeToFeed} />
           </div>
           <div className="row">
           </div>
@@ -82,7 +84,8 @@ class App extends React.Component {
 
 App.propTypes = {
   feeds: React.PropTypes.array.isRequired,
-  onSelectFeed: React.PropTypes.func.isRequired
+  onSelectFeed: React.PropTypes.func.isRequired,
+  onSubscribeToFeed: React.PropTypes.func.isRequired
 };
 
 module.exports = App;

@@ -31,7 +31,7 @@ class Modal extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if(newProps.show != this.props.show) {
+    if(newProps.show != this.state.show) {
       this.setState({show: newProps.show}, () => { this.showHide(); });
     }
   }
@@ -64,6 +64,12 @@ Modal.propTypes = {
     React.PropTypes.string,
     React.PropTypes.element
   ]).isRequired,
+
+  footer: React.PropTypes.oneOfType([
+    React.PropTypes.string,
+    React.PropTypes.element
+  ]),
+
   onHide: React.PropTypes.func
 };
 

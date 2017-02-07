@@ -1,3 +1,4 @@
+require('../../src/index');
 import App from '../../src/js/components/App';
 
 describe('App', function() {

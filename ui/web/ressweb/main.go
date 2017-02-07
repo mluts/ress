@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/gopherjs/gopherjs/js"
 	// "github.com/mluts/ress/ui/web/ressweb/ajax"
-	// "github.com/mluts/ress/ui/web/ressweb/console"
+	"github.com/mluts/ress/ui/web/ressweb/console"
 )
 
 func main() {
@@ -28,5 +28,9 @@ func main() {
 	ui.Call("registerHandler", "onSelectFeed", func(feed *js.Object) {
 		app.selectFeed(feed.Get("ID").Int())
 		render()
+	})
+
+	ui.Call("registerHandler", "onSubscribeToFeed", func(feed *js.Object) {
+		console.Log("Subscribing to ", feed)
 	})
 }

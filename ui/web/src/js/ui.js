@@ -10,13 +10,18 @@ var ui = {
   eventHandlers: {
     // Select feed to see it's items
     onSelectFeed: [],
+    onSubscribeToFeed: []
   },
 
   /*
    * Attach a listener to one of UI events
    */
   registerHandler: function(key, fn) {
-    ui.eventHandlers[key].push(fn);
+    if(ui.eventHandlers[key]) {
+      ui.eventHandlers[key].push(fn);
+    } else {
+      log.err("Unknown handler", key);
+    }
   },
 
   /*
@@ -35,7 +40,9 @@ var ui = {
   render: function(data) {
     ReactDOM.render(
       // jshint ignore:start
-      <App feeds={data.feeds} onSelectFeed={this.getHandler('onSelectFeed')} />,
+      <App feeds={data.feeds}
+           onSelectFeed={this.getHandler('onSelectFeed')}
+           onSubscribeToFeed={this.getHandler('onSubscribeToFeed')}/>,
       // jshint ignore:end
       document.getElementById('root')
     );

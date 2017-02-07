@@ -42,7 +42,7 @@ func main() {
 
 	a.Run()
 	mux := http.NewServeMux()
-	mux.Handle(apiPrefix, http.StripPrefix(apiPrefix, a.Handler()))
+	mux.Handle(apiPrefix+"/", http.StripPrefix(apiPrefix, a.Handler()))
 	mux.Handle("/", http.FileServer(http.Dir(staticContentPath)))
 
 	log.Printf(`

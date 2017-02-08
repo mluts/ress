@@ -3,12 +3,13 @@ package main
 import (
 	"fmt"
 	"github.com/mluts/ress/ui/web/ressweb/ajax"
+	"github.com/mluts/ress/ui/web/ressweb/json"
 	"strconv"
 	"strings"
 )
 
 type jsonRequester interface {
-	JSONRequest(method, url string) chan *ajax.Response
+	JSONRequest(method, url string, data ...interface{}) chan *ajax.Response
 }
 
 type api struct {
@@ -59,7 +60,10 @@ func (a *api) getFeed(id int) (*Feed, error) {
 }
 
 func (a *api) addFeed(f *Feed) error {
-	responseChan := a.r.JSONRequest("POST", a.withBasePath("feeds"))
+	responseChan := a.r.JSONRequest(
+		"POST", a.withBasePath("feeds"),
+		json.Stringify(map[string]string{"link": f.Link}),
+	)
 
 	response := <-responseChan
 	if response.Error != nil {

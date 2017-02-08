@@ -13,4 +13,5 @@ func (a *App) selectFeed(id int) {
 }
 
 func (a *App) subscribeToFeed(f *Feed) {
+	a.api.addFeed(f)
 }

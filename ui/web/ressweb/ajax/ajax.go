@@ -21,7 +21,7 @@ func New() *XHR {
 }
 
 // JSONRequest makes  XHR request with json responseType "json"
-func (x *XHR) JSONRequest(method, url string) chan *Response {
+func (x *XHR) JSONRequest(method, url string, data ...interface{}) chan *Response {
 	var (
 		ch  chan *Response
 		err error
@@ -33,6 +33,7 @@ func (x *XHR) JSONRequest(method, url string) chan *Response {
 
 	xhr.Call("open", method, url)
 	xhr.Set("responseType", "json")
+	xhr.Call("setRequestHeader", "Content-Type", "application/json")
 	xhr.Set("onloadend", func() {
 		go func() {
 			ch <- &Response{
@@ -45,7 +46,7 @@ func (x *XHR) JSONRequest(method, url string) chan *Response {
 	xhr.Set("onerror", func() {
 		err = errors.New("An error occured during the request")
 	})
-	xhr.Call("send")
+	xhr.Call("send", data...)
 
 	return ch
 }

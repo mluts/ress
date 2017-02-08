@@ -11,7 +11,7 @@ var ui = {
     // Select feed to see it's items
     onSelectFeed: [],
     onSubscribeToFeed: [],
-		onSelectItem: []
+    onSelectItem: []
   },
 
   /*
@@ -42,9 +42,9 @@ var ui = {
     ReactDOM.render(
       // jshint ignore:start
       <App feeds={data.feeds}
-           onSelectFeed={this.getHandler('onSelectFeed')}
-           onSubscribeToFeed={this.getHandler('onSubscribeToFeed')}
-					 onSelectItem={this.getHandler('onSelectItem')} />,
+      onSelectFeed={this.getHandler('onSelectFeed')}
+      onSubscribeToFeed={this.getHandler('onSubscribeToFeed')}
+      onSelectItem={this.getHandler('onSelectItem')} />,
       // jshint ignore:end
       document.getElementById('root')
     );

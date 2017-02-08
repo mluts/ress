@@ -50,3 +50,44 @@ func TestHandleFeedDownload_saves_error(t *testing.T) {
 		t.Error("Expected to see the error saved to db")
 	}
 }
+
+func TestHandleFeedDownload_saves_items(t *testing.T) {
+	var count int
+
+	clearDatabase()
+
+	url := "http://example.com/rss"
+
+	id, err := app.db.createFeed(&Feed{Link: url})
+	if err != nil {
+		panic(err)
+	}
+
+	if app.db.getItemsCount(id, &count); count != 0 {
+		t.Errorf("Expected to have 0 items in DB, but have %d", count)
+	}
+
+	feed := &gofeed.Feed{
+		Title: "The Title",
+		Items: []*gofeed.Item{
+			{Title: "The title 1",
+				Link: "http://example.com/1"},
+			{Title: "The title 1",
+				Link: "http://example.com/2"},
+			{Title: "The title 1",
+				Link: "http://example.com/3"},
+		},
+	}
+
+	app.handleFeedDownload(url, feed, nil)
+
+	if app.db.getItemsCount(id, &count); count != 3 {
+		t.Errorf("Expected to have 3 items in DB, but have %d", count)
+	}
+
+	app.handleFeedDownload(url, feed, nil)
+
+	if app.db.getItemsCount(id, &count); count != 3 {
+		t.Errorf("Expected to have 3 items in DB, but have %d", count)
+	}
+}

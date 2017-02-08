@@ -45,6 +45,12 @@ func (db *DB) getItems(feedID int64, limit int, out *[]Item) error {
 	return stmt.Select(out, limit)
 }
 
+func (db *DB) getItemsCount(feedID int64, count *int) error {
+	stmt := db.prepare("getItemsCount",
+		"SELECT COUNT(id) FROM items WHERE feed_id = $1")
+	return stmt.Get(count, feedID)
+}
+
 func (db *DB) markItemRead(itemID int64, read bool) (err error) {
 	if read {
 		stmt := db.prepare("markItemRead", "INSERT INTO item_reads ( item_id ) VALUES ( $1 )")
@@ -55,4 +61,10 @@ func (db *DB) markItemRead(itemID int64, read bool) (err error) {
 	}
 
 	return
+}
+
+func (db *DB) getItemByLink(feedID int64, link string, item *Item) error {
+	stmt := db.prepare("getItemByLink",
+		"SELECT * FROM items WHERE feed_id = $1 AND link = $2 LIMIT 1")
+	return stmt.Get(item, feedID, link)
 }

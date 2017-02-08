@@ -1,6 +1,7 @@
 package app
 
 import (
+	"database/sql"
 	"github.com/mmcdole/gofeed"
 	"log"
 )
@@ -43,11 +44,14 @@ func (a *App) handleFeedDownload(url string, feed *gofeed.Feed, err error) {
 	}
 
 	for _, item := range feed.Items {
-		newItem := Item{}
-		translateItem(item, &newItem)
-		_, err := a.db.createItem(f.ID, &newItem)
-		if err != nil {
-			log.Printf("Failed to create an item: %v", err)
+		switch dberr := a.db.getItemByLink(f.ID, item.Link, &Item{}); dberr {
+		case sql.ErrNoRows:
+			newItem := Item{}
+			translateItem(item, &newItem)
+			a.db.createItem(f.ID, &newItem)
+		case nil:
+		default:
+			log.Printf("Failed to search a feed item: %v", dberr)
 		}
 	}
 }

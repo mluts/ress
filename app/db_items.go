@@ -41,8 +41,9 @@ func (db *DB) getItem(id int64, out *Item) error {
 }
 
 func (db *DB) getItems(feedID int64, limit int, out *[]Item) error {
-	stmt := db.prepare("getItems", "SELECT * FROM items_view ORDER BY id LIMIT $1")
-	return stmt.Select(out, limit)
+	stmt := db.prepare("getItems",
+		"SELECT * FROM items_view WHERE feed_id = $1 ORDER BY id LIMIT $2")
+	return stmt.Select(out, feedID, limit)
 }
 
 func (db *DB) getItemsCount(feedID int64, count *int) error {

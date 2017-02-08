@@ -53,8 +53,13 @@ var feedExamples = []struct {
 
 var itemExamples = []Item{
 	{
-		Title: "The Title 1",
-		Link:  "The Link 1",
+		Title: "Item 1",
+		Link:  "http://example.com/item1",
+	},
+
+	{
+		Title: "Item 2",
+		Link:  "http://example.com/item2",
 	},
 }
 

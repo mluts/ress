@@ -9,6 +9,15 @@
   }
 }
 
+.items {
+	list-style: none;
+
+	padding-left: 0;
+	.item.selected {
+		font-weight: bold;
+	}
+}
+
 .context-menu {
   background: #222;
   ul {

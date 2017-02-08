@@ -15,7 +15,6 @@ func newUI() *UI {
 }
 
 func (ui *UI) render(feeds []*Feed) {
-	console.Log("Rendering...", feeds)
 	ui.obj.Call("render", map[string]interface{}{
 		"feeds": feeds,
 	})
@@ -58,8 +57,31 @@ func (ui *UI) onSubscribeToFeed(fn func(link string)) {
 		link, ok = f["Link"].(string)
 		if !ok {
 			console.Err("onSubscribeToFeed feed.Link should be a string")
+			return
 		}
 
 		fn(link)
+	})
+}
+
+func (ui *UI) onSelectItem(fn func(itemID int)) {
+	ui.obj.Call("registerHandler", "onSelectItem", func(itemJS *js.Object) {
+		var (
+			ok bool
+			id float64
+		)
+
+		item, ok := itemJS.Interface().(map[string]interface{})
+		if !ok {
+			console.Err("Wrong argument type for onSelectItem callback", itemJS)
+			return
+		}
+
+		id, ok = item["ID"].(float64)
+		if !ok {
+			console.Err("onSelectItem item.ID should be a number", itemJS)
+		}
+
+		fn(int(id))
 	})
 }

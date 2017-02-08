@@ -29,6 +29,11 @@ func main() {
 		}()
 	})
 
+	ui.onSelectItem(func(id int) {
+		console.Log("Selecting an item:", id)
+		go app.selectItem(id)
+	})
+
 	go func() {
 		for {
 			<-app.update

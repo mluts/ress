@@ -26,8 +26,8 @@ func (a *App) selectFeed(id int) {
 	a.feedsMutex <- 1
 	defer func() { <-a.feedsMutex }()
 
-	for i := range a.feeds {
-		a.feeds[i].Selected = a.feeds[i].ID == id
+	for _, feed := range a.feeds {
+		feed.Selected = feed.ID == id
 	}
 	a.update <- 1
 }
@@ -61,5 +61,19 @@ func (a *App) downloadItems(feed *Feed) {
 	}
 
 	feed.Items = items
+	a.update <- 1
+}
+
+func (a *App) selectItem(id int) {
+	a.feedsMutex <- 1
+	defer func() { <-a.feedsMutex }()
+
+	for _, feed := range a.feeds {
+		if feed.Selected {
+			for _, item := range feed.Items {
+				item.Selected = item.ID == id
+			}
+		}
+	}
 	a.update <- 1
 }

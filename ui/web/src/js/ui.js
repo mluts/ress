@@ -10,7 +10,8 @@ var ui = {
   eventHandlers: {
     // Select feed to see it's items
     onSelectFeed: [],
-    onSubscribeToFeed: []
+    onSubscribeToFeed: [],
+		onSelectItem: []
   },
 
   /*
@@ -42,7 +43,8 @@ var ui = {
       // jshint ignore:start
       <App feeds={data.feeds}
            onSelectFeed={this.getHandler('onSelectFeed')}
-           onSubscribeToFeed={this.getHandler('onSubscribeToFeed')}/>,
+           onSubscribeToFeed={this.getHandler('onSubscribeToFeed')}
+					 onSelectItem={this.getHandler('onSelectItem')} />,
       // jshint ignore:end
       document.getElementById('root')
     );

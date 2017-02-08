@@ -38,9 +38,10 @@ type Feed struct {
 
 // Item represents a single feed item
 type Item struct {
-	ID    int
-	Title string
-	Link  string
+	ID       int
+	Title    string
+	Link     string
+	Selected bool
 }
 
 func (a *api) getFeeds() ([]*Feed, error) {

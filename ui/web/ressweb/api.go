@@ -17,12 +17,23 @@ type api struct {
 	r        jsonRequester
 }
 
+var (
+	jsonFeedID    = "ID"
+	jsonFeedTitle = "Title"
+	jsonFeedLink  = "Link"
+	jsonItemID    = jsonFeedID
+	jsonItemTitle = jsonFeedTitle
+	jsonItemLink  = jsonFeedLink
+)
+
 // Feed represents a single feed
 type Feed struct {
 	ID       int
 	Title    string
 	Link     string
 	Selected bool
+
+	Items []*Item
 }
 
 // Item represents a single feed item
@@ -59,10 +70,10 @@ func (a *api) getFeed(id int) (*Feed, error) {
 	return parseFeed(response.Body)
 }
 
-func (a *api) addFeed(f *Feed) error {
+func (a *api) addFeed(link string) error {
 	responseChan := a.r.JSONRequest(
 		"POST", a.withBasePath("feeds"),
-		json.Stringify(map[string]string{"link": f.Link}),
+		json.Stringify(map[string]string{"link": link}),
 	)
 
 	response := <-responseChan
@@ -70,7 +81,7 @@ func (a *api) addFeed(f *Feed) error {
 		return response.Error
 	} else if response.Code != 200 {
 		return fmt.Errorf(
-			"Can't craete a feed %s, server responded with code %d", f.Link, response.Code)
+			"Can't craete a feed %s, server responded with code %d", link, response.Code)
 	}
 
 	return nil
@@ -118,15 +129,25 @@ func parseFeeds(json interface{}) ([]*Feed, error) {
 }
 
 func parseFeed(json interface{}) (*Feed, error) {
+	var id float64
 	feedJSON, ok := json.(map[string]interface{})
 	if !ok {
 		return nil, fmt.Errorf("Unexpected feed format")
 	}
 
 	feed := &Feed{}
-	feed.ID = feedJSON["id"].(int)
-	feed.Title = feedJSON["title"].(string)
-	feed.Link = feedJSON["link"].(string)
+	if id, ok = feedJSON[jsonFeedID].(float64); !ok {
+		return nil, fmt.Errorf("feed.%s is %T, not float64", jsonFeedID, feedJSON[jsonFeedID])
+	}
+	feed.ID = int(id)
+
+	if feed.Title, ok = feedJSON[jsonFeedTitle].(string); !ok {
+		return nil, fmt.Errorf("feed.%s is %T, not string", jsonFeedTitle, feedJSON[jsonFeedTitle])
+	}
+
+	if feed.Link, ok = feedJSON[jsonFeedLink].(string); !ok {
+		return nil, fmt.Errorf("feed.%s is %T, not string", jsonFeedLink, feedJSON[jsonFeedLink])
+	}
 
 	return feed, nil
 }
@@ -151,6 +172,7 @@ func parseItems(json interface{}) ([]*Item, error) {
 }
 
 func parseItem(json interface{}) (*Item, error) {
+	var id float64
 	itemJSON, ok := json.(map[string]interface{})
 
 	if !ok {
@@ -158,9 +180,18 @@ func parseItem(json interface{}) (*Item, error) {
 	}
 
 	item := &Item{}
-	item.ID = itemJSON["id"].(int)
-	item.Link = itemJSON["link"].(string)
-	item.Title = itemJSON["title"].(string)
+	if id, ok = itemJSON[jsonItemID].(float64); !ok {
+		return nil, fmt.Errorf("item.%s is %T, not float64", jsonItemID, itemJSON[jsonItemID])
+	}
+	item.ID = int(id)
+
+	if item.Title, ok = itemJSON[jsonItemTitle].(string); !ok {
+		return nil, fmt.Errorf("item.%s is %T, not string", jsonItemTitle, itemJSON[jsonItemTitle])
+	}
+
+	if item.Link, ok = itemJSON[jsonItemLink].(string); !ok {
+		return nil, fmt.Errorf("item.%s is %T, not string", jsonItemLink, itemJSON[jsonItemLink])
+	}
 
 	return item, nil
 }

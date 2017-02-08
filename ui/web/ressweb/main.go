@@ -1,42 +1,43 @@
 package main
 
 import (
-	"github.com/gopherjs/gopherjs/js"
-	"github.com/mluts/ress/ui/web/ressweb/ajax"
 	"github.com/mluts/ress/ui/web/ressweb/console"
+	"time"
 )
 
+const rate = time.Second / 2
+
 func main() {
-	app := &App{}
-	app.api = &api{"/api", ajax.New()}
+	throttle := time.Tick(rate)
 
-	for i := 0; i < 10; i++ {
-		app.feeds = append(app.feeds, &Feed{
-			Title: "The Feed 1",
-			Link:  "https://example.com/",
-			ID:    i})
-	}
+	app := newApp()
 
-	ui := js.Global.Get("ui")
+	ui := newUI()
 
-	render := func() {
-		ui.Call("render", map[string]interface{}{
-			"feeds": app.feeds,
-		})
-	}
-
-	render()
-
-	ui.Call("registerHandler", "onSelectFeed", func(feed *js.Object) {
-		app.selectFeed(feed.Get("ID").Int())
-		render()
+	ui.onSelectFeed(func(feedID int) {
+		console.Log("Selected feed:", feedID)
+		go app.selectFeed(feedID)
 	})
 
-	ui.Call("registerHandler", "onSubscribeToFeed", func(feed *js.Object) {
-		console.Log("Subscribing to ", feed)
+	ui.onSubscribeToFeed(func(link string) {
+		console.Log("Subscribing to:", link)
 		go func() {
-			app.subscribeToFeed(&Feed{Link: feed.Get("Link").String()})
+			app.subscribeToFeed(link)
+			console.Log("Subscribed, downloading feeds...")
+			app.downloadFeeds()
 			console.Log("Done")
 		}()
 	})
+
+	go func() {
+		for {
+			<-app.update
+			console.Log("Having an update")
+			<-throttle
+			ui.render(app.feeds)
+		}
+	}()
+
+	app.downloadFeeds()
+	ui.render(app.feeds)
 }

@@ -1,17 +1,65 @@
 package main
 
+import (
+	"github.com/mluts/ress/ui/web/ressweb/ajax"
+	"github.com/mluts/ress/ui/web/ressweb/console"
+)
+
 // App is an application state container
 type App struct {
-	api   *api
-	feeds []*Feed
+	api        *api
+	feeds      []*Feed
+	feedsMutex chan int
+	update     chan int
 }
 
-func (a *App) selectFeed(id int) {
-	for i := range a.feeds {
-		a.feeds[i].Selected = a.feeds[i].ID == id
+func newApp() *App {
+	return &App{
+		api:        &api{"/api", ajax.New()},
+		feeds:      make([]*Feed, 0),
+		feedsMutex: make(chan int, 1),
+		update:     make(chan int),
 	}
 }
 
-func (a *App) subscribeToFeed(f *Feed) {
-	a.api.addFeed(f)
+func (a *App) selectFeed(id int) {
+	a.feedsMutex <- 1
+	defer func() { <-a.feedsMutex }()
+
+	for i := range a.feeds {
+		a.feeds[i].Selected = a.feeds[i].ID == id
+	}
+	a.update <- 1
+}
+
+func (a *App) subscribeToFeed(link string) {
+	a.api.addFeed(link)
+}
+
+func (a *App) downloadFeeds() {
+	a.feedsMutex <- 1
+	defer func() { <-a.feedsMutex }()
+
+	feeds, err := a.api.getFeeds()
+	if err != nil {
+		console.Err("Can't download feeds:", err.Error())
+		return
+	}
+
+	a.feeds = feeds
+
+	for i := range feeds {
+		go a.downloadItems(feeds[i])
+	}
+}
+
+func (a *App) downloadItems(feed *Feed) {
+	items, err := a.api.getItems(feed.ID)
+	if err != nil {
+		console.Err("Can't download feed items:", err.Error())
+		return
+	}
+
+	feed.Items = items
+	a.update <- 1
 }

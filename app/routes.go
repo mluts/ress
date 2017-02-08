@@ -18,7 +18,7 @@ type route struct {
 
 func (a *App) listFeeds(w http.ResponseWriter, r *http.Request) {
 	feeds := []Feed{}
-	err := a.db.getFeeds(-1, &feeds)
+	err := a.db.getFeeds(SQLNoLimit, &feeds)
 
 	if err != nil {
 		jsonError(w, err.Error(), http.StatusInternalServerError)
@@ -98,7 +98,7 @@ func (a *App) feedItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = a.db.getItems(int64(id), -1, &items)
+	err = a.db.getItems(int64(id), SQLNoLimit, &items)
 	if err != nil {
 		jsonError(w, err.Error(), http.StatusNotFound)
 		return

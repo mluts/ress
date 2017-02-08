@@ -11,6 +11,9 @@ import (
 	"time"
 )
 
+// SQLNoLimit used as LIMIT argument means ALL records
+const SQLNoLimit = -1
+
 // DB is a database wrapper to provide application specific methods for it
 type DB struct {
 	db    *sqlx.DB

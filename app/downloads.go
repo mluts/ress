@@ -7,7 +7,7 @@ import (
 
 func (a *App) enqueueDownloads() {
 	feeds := []Feed{}
-	err := a.db.getFeeds(-1, &feeds)
+	err := a.db.getFeeds(SQLNoLimit, &feeds)
 
 	if err != nil {
 		log.Print("Failed to enqueue downloads due to error: ", err)

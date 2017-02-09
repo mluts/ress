@@ -21,6 +21,8 @@ class App extends React.Component {
       contextMenuOptions: {},
       contextMenuCallback: function() {}
     };
+
+    this.showFeedContextMenu = this.showFeedContextMenu.bind(this);
   }
 
   saveMouseCoordinates(e) {

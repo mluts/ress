@@ -1,21 +1,42 @@
 @import "./bootstrap.min";
 
+$selected-color: #333;
+$error-color: #e74c3c;
+
 .feeds {
   list-style: none;
   padding-left: 0px;
+  cursor: default;
 
-  .feed.selected {
-    font-weight: bold;
+  .feed {
+    &:hover, &.selected {
+      background-color: $selected-color;
+    }
+
+    &.selected {
+      font-weight: bold;
+    }
+
+    &.error {
+      color: $error-color;
+    }
   }
 }
 
 .items {
-	list-style: none;
+  list-style: none;
+  cursor: default;
 
-	padding-left: 0;
-	.item.selected {
-		font-weight: bold;
-	}
+  padding-left: 0;
+  .item {
+    &.selected, &:hover {
+      background-color: $selected-color;
+    }
+
+    &.selected {
+      font-weight: bold;
+    }
+  }
 }
 
 .context-menu {
@@ -25,7 +46,7 @@
     list-style: none;
     padding: 0;
     li {
-      cursor: pointer;
+      cursor: default;
       &:hover {
         background-color: #333;
       }

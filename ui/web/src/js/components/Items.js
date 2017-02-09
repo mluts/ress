@@ -9,8 +9,10 @@ class Item extends React.Component {
   className() {
     var klass = ['item'];
     if(this.props.data.Selected) {
-      console.log("Selected", this.props.data);
       klass.push('selected');
+    }
+    if(this.props.data.Unread) {
+      klass.push("unread");
     }
     return klass.join(' ');
   }

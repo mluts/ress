@@ -12,6 +12,9 @@ class Feed extends React.Component {
     if(this.props.data.Selected) {
       klass.push('selected');
     }
+    if(this.props.data.Error) {
+      klass.push("error");
+    }
     return klass.join(' ');
   }
 
@@ -26,11 +29,21 @@ class Feed extends React.Component {
     this.props.onContextMenu(this.props.data);
   }
 
+  countUnread() {
+    return this.props.data.Items.reduce((prev, cur) => {
+      return cur.Unread ? prev + 1 : prev;
+    }, 0);
+  }
+
   render() {
     return (
       // jshint ignore:start
-      <div onContextMenu={this.showContextMenu} onClick={this.selectFeed} className={this.className()}>
-      <span>{this.props.data.Title}</span>
+      <div title={this.props.data.Error} className="container-fluid" onContextMenu={this.showContextMenu}
+          onClick={this.selectFeed} className={this.className()}>
+      <div className="row">
+        <div className="col-md-10">{this.props.data.Title}</div>
+        <div className="col-md-2 unread pull-right">{this.countUnread()}</div>
+      </div>
       </div>
       // jshint ignore:end
     );

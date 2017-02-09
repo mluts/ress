@@ -21,9 +21,12 @@ var (
 	jsonFeedID    = "ID"
 	jsonFeedTitle = "Title"
 	jsonFeedLink  = "Link"
-	jsonItemID    = jsonFeedID
-	jsonItemTitle = jsonFeedTitle
-	jsonItemLink  = jsonFeedLink
+	jsonFeedError = "Error"
+
+	jsonItemID     = jsonFeedID
+	jsonItemTitle  = jsonFeedTitle
+	jsonItemLink   = jsonFeedLink
+	jsonItemUnread = "Unread"
 )
 
 // Feed represents a single feed
@@ -32,6 +35,7 @@ type Feed struct {
 	Title    string
 	Link     string
 	Selected bool
+	Error    string
 
 	Items []*Item
 }
@@ -42,6 +46,7 @@ type Item struct {
 	Title    string
 	Link     string
 	Selected bool
+	Unread   bool
 }
 
 func (a *api) getFeeds() ([]*Feed, error) {
@@ -150,6 +155,14 @@ func parseFeed(json interface{}) (*Feed, error) {
 		return nil, fmt.Errorf("feed.%s is %T, not string", jsonFeedLink, feedJSON[jsonFeedLink])
 	}
 
+	if len(feed.Title) == 0 {
+		feed.Title = feed.Link
+	}
+
+	if feed.Error, ok = feedJSON[jsonFeedError].(string); !ok {
+		return nil, fmt.Errorf("feed.%s is %T, not string", jsonFeedError, feedJSON[jsonFeedError])
+	}
+
 	return feed, nil
 }
 
@@ -192,6 +205,10 @@ func parseItem(json interface{}) (*Item, error) {
 
 	if item.Link, ok = itemJSON[jsonItemLink].(string); !ok {
 		return nil, fmt.Errorf("item.%s is %T, not string", jsonItemLink, itemJSON[jsonItemLink])
+	}
+
+	if item.Unread, ok = itemJSON[jsonItemUnread].(bool); !ok {
+		return nil, fmt.Errorf("item.%s is %T, not bool", jsonItemUnread, itemJSON[jsonItemUnread])
 	}
 
 	return item, nil

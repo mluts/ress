@@ -7,7 +7,7 @@ import (
 )
 
 type createFeedRequest struct {
-	Title, Link string
+	Link string
 }
 
 type route struct {
@@ -37,9 +37,7 @@ func (a *App) createFeed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = a.db.createFeed(&Feed{
-		Title: req.Title,
-		Link:  req.Link})
+	_, err = a.db.createFeed(req.Link)
 
 	if err != nil {
 		jsonError(w, err.Error(), http.StatusBadRequest)
@@ -144,6 +142,7 @@ func (a *App) unmarkItemRead(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Handler returns a http handler for http api
 func (a *App) Handler() http.Handler {
 	var routes = []route{
 		{http.MethodGet, "/feeds", a.listFeeds},

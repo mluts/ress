@@ -4,15 +4,13 @@ import (
 	"database/sql"
 )
 
-func (db *DB) createFeed(feed *Feed) (id int64, err error) {
+func (db *DB) createFeed(link string) (id int64, err error) {
 	var result sql.Result
 
-	stmt := db.prepareNamed("createFeed", `
-		INSERT INTO feeds (link, title, error, active)
-			VALUES (:link, :title, :error, :active)
-	`)
+	stmt := db.prepare("createFeed",
+		"INSERT INTO feeds (link) VALUES ($1)")
 
-	result, err = stmt.Exec(feed)
+	result, err = stmt.Exec(link)
 
 	if err != nil {
 		return
@@ -34,6 +32,16 @@ func (db *DB) updateFeed(id int64, feed *Feed) error {
 	`)
 
 	_, err := stmt.Exec(feed)
+	if err != nil {
+		return err
+	}
+
+	if feed.Image != nil {
+		stmt := db.prepare("createFeedImage", `
+			INSERT INTO feed_images (feed_id, url, title) VALUES ($1, $2, $3)
+		`)
+		_, err = stmt.Exec(id, feed.Image.URL, feed.Image.Title)
+	}
 
 	return err
 }
@@ -48,7 +56,27 @@ func (db *DB) getFeed(id int64, out *Feed) error {
 	stmt := db.prepare(
 		"getFeed",
 		"SELECT * FROM feeds WHERE id = $1 ORDER BY id LIMIT 1")
-	return stmt.Get(out, id)
+	err := stmt.Get(out, id)
+
+	if err != nil {
+		return err
+	}
+
+	stmt = db.prepare(
+		"getFeedImage",
+		`SELECT id, url, title FROM feed_images
+			WHERE feed_id = $1 LIMIT 1`)
+
+	image := &Image{}
+	switch err = stmt.Get(image, id); err {
+	case sql.ErrNoRows:
+		return nil
+	case nil:
+		out.Image = image
+		return nil
+	default:
+		return err
+	}
 }
 
 func (db *DB) getFeedByLink(link string, out *Feed) error {

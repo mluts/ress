@@ -14,10 +14,21 @@ var Migrations = &migrate.MemoryMigrationSource{
 				(
 					id INTEGER PRIMARY KEY,
 					link TEXT NOT NULL CHECK(length(link) > 0),
-					title TEXT NOT NULL,
+					title TEXT NOT NULL DEFAULT "",
 					author TEXT NOT NULL DEFAULT "",
 					active BOOLEAN 	NOT NULL DEFAULT TRUE,
 					error TEXT NOT NULL DEFAULT "",
+					created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+					updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+				);
+
+			-- represents a feed image
+			CREATE TABLE IF NOT EXISTS feed_images
+				(
+					id INTEGER PRIMARY KEY,
+					feed_id INTEGER REFERENCES feeds(id) ON DELETE CASCADE,
+					url TEXT NOT NULL CHECK(length(url) > 0),
+					title TEXT NOT NULL,
 					created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 					updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 				);
@@ -62,6 +73,9 @@ var Migrations = &migrate.MemoryMigrationSource{
 			CREATE UNIQUE INDEX IF NOT EXISTS
 				item_read ON item_reads(id, item_id);
 
+			CREATE UNIQUE INDEX IF NOT EXISTS
+				feed_image_feed ON feed_images(feed_id);
+
 			-- feeds.updated_at trigger
 			CREATE TRIGGER IF NOT EXISTS
 				feeds_updated_at AFTER UPDATE ON feeds
@@ -75,6 +89,14 @@ var Migrations = &migrate.MemoryMigrationSource{
 				items_updated_at AFTER UPDATE ON items
 				BEGIN
 					UPDATE items SET updated_at = CURRENT_TIMESTAMP
+						WHERE id = NEW.id;
+				END;
+
+			-- feed_images.updated_at trigger
+			CREATE TRIGGER IF NOT EXISTS
+				feed_images_updated_at AFTER UPDATE ON feed_images
+				BEGIN
+					UPDATE feed_images SET updated_at = CURRENT_TIMESTAMP
 						WHERE id = NEW.id;
 				END;
 			`},

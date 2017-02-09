@@ -33,6 +33,15 @@ type Feed struct {
 	Active    bool      `db:"active"`
 	CreatedAt time.Time `db:"created_at"`
 	UpdatedAt time.Time `db:"updated_at"`
+
+	Image *Image
+}
+
+// Image represents a simple picture with url and optional title
+type Image struct {
+	ID    int64  `db:"id"`
+	Title string `db:"title"`
+	URL   string `db:"url"`
 }
 
 // Item represents a feed item in our database

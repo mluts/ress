@@ -67,7 +67,7 @@ func TestDB_createFeed(t *testing.T) {
 	db := opendb()
 
 	for _, example := range feedExamples {
-		id, err := db.createFeed(&example.feed)
+		id, err := db.createFeed(example.feed.Link)
 		t.Logf("Created feed with id %d", id)
 
 		if example.ok && err != nil {
@@ -81,7 +81,7 @@ func TestDB_createFeed(t *testing.T) {
 func TestDB_deleteFeed(t *testing.T) {
 	db := opendb()
 
-	id, err := db.createFeed(&feedExamples[0].feed)
+	id, err := db.createFeed(feedExamples[0].feed.Link)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -96,7 +96,7 @@ func TestDB_getFeed(t *testing.T) {
 	var example = feedExamples[0].feed
 	db := opendb()
 
-	id, err := db.createFeed(&example)
+	id, err := db.createFeed(example.Link)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -121,7 +121,7 @@ func TestDB_updateFeed(t *testing.T) {
 
 	db := opendb()
 
-	id, err = db.createFeed(&example)
+	id, err = db.createFeed(example.Link)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -150,7 +150,7 @@ func TestDB_item(t *testing.T) {
 	)
 	db := opendb()
 
-	feedID, err = db.createFeed(&feed)
+	feedID, err = db.createFeed(feed.Link)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -81,7 +81,7 @@ func TestAPI_feeds(t *testing.T) {
 
 	feed := feedExamples[0].feed
 
-	db.createFeed(&feed)
+	db.createFeed(feed.Link)
 
 	rec := doRequest("GET", "/feeds", nil)
 
@@ -94,10 +94,6 @@ func TestAPI_feeds(t *testing.T) {
 	}
 
 	feed2 := feeds[0]
-
-	if feed.Title != feed2.Title {
-		t.Error("Title is not equal", feed.Title, feed2.Title)
-	}
 
 	if feed.Link != feed2.Link {
 		t.Error("Link is not equal", feed.Link, feed2.Link)
@@ -135,7 +131,7 @@ func TestAPI_create_feed(t *testing.T) {
 func TestAPI_show_feed(t *testing.T) {
 	clearDatabase()
 	feed := feedExamples[0].feed
-	id, err := app.db.createFeed(&feed)
+	id, err := app.db.createFeed(feed.Link)
 
 	if err != nil {
 		panic(err)
@@ -160,7 +156,7 @@ func TestAPI_show_feed(t *testing.T) {
 func TestAPI_feed_items(t *testing.T) {
 	clearDatabase()
 	feed := feedExamples[0].feed
-	id, err := app.db.createFeed(&feed)
+	id, err := app.db.createFeed(feed.Link)
 
 	if err != nil {
 		panic(err)
@@ -208,7 +204,7 @@ func TestAPI_delete_feed(t *testing.T) {
 	clearDatabase()
 
 	feed := feedExamples[0].feed
-	id, err := db.createFeed(&feed)
+	id, err := db.createFeed(feed.Link)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -246,7 +242,7 @@ func TestAPI_mark_item_read(t *testing.T) {
 	clearDatabase()
 
 	feed := feedExamples[0].feed
-	id, err = db.createFeed(&feed)
+	id, err = db.createFeed(feed.Link)
 	if err != nil {
 		t.Fatal(err)
 	}

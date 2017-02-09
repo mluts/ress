@@ -10,13 +10,19 @@ func TestHandleFeedDownload_updates_feed(t *testing.T) {
 	clearDatabase()
 	url := "http://example.com/rss"
 
-	id, err := app.db.createFeed(&Feed{Link: url})
+	id, err := app.db.createFeed(url)
 	if err != nil {
 		panic(err)
 	}
 
+	image := &gofeed.Image{
+		URL:   "http://example.com/logo.png",
+		Title: "The Feed Logo",
+	}
+
 	feed := &gofeed.Feed{
 		Title: "The Title",
+		Image: image,
 	}
 	app.handleFeedDownload(url, feed, nil)
 
@@ -25,6 +31,10 @@ func TestHandleFeedDownload_updates_feed(t *testing.T) {
 
 	if out.Title != feed.Title {
 		t.Error("Expected to see an updated title")
+	}
+
+	if out.Image == nil {
+		t.Error("Expected to see a downloaded image")
 	}
 }
 
@@ -36,7 +46,7 @@ func TestHandleFeedDownload_saves_error(t *testing.T) {
 
 	url := "http://example.com/rss"
 
-	id, dberr := app.db.createFeed(&Feed{Link: url})
+	id, dberr := app.db.createFeed(url)
 	if dberr != nil {
 		panic(dberr)
 	}
@@ -58,7 +68,7 @@ func TestHandleFeedDownload_saves_items(t *testing.T) {
 
 	url := "http://example.com/rss"
 
-	id, err := app.db.createFeed(&Feed{Link: url})
+	id, err := app.db.createFeed(url)
 	if err != nil {
 		panic(err)
 	}

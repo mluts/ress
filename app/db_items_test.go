@@ -5,12 +5,12 @@ import "testing"
 func TestItem_get_items(t *testing.T) {
 	clearDatabase()
 
-	id1, err := db.createFeed(&Feed{Link: "http://example.com/1"})
+	id1, err := db.createFeed("http://example.com/1")
 	if err != nil {
 		panic(err)
 	}
 
-	id2, err := db.createFeed(&Feed{Link: "http://example.com/2"})
+	id2, err := db.createFeed("http://example.com/2")
 	if err != nil {
 		panic(err)
 	}

@@ -20,7 +20,7 @@ var (
 func init() {
 	flag.StringVar(&addr, "addr", ":8080", "Service address")
 	flag.StringVar(&databaseURL, "db", "./db.sqlite", "Database URL")
-	flag.DurationVar(&downloadInterval, "interval", time.Second*30, "Download interval")
+	flag.DurationVar(&downloadInterval, "interval", time.Minute*5, "Download interval")
 	flag.UintVar(&downloadConcurrency, "workers", 10, "Amount of workers")
 	flag.StringVar(&staticContentPath, "static", "./static", "Static content path")
 	flag.StringVar(&apiPrefix, "prefix", "/api", "API prefix")

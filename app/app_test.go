@@ -17,6 +17,8 @@ var (
 	handler http.Handler
 )
 
+const exampleLink = "http://example.com"
+
 func init() {
 	var err error
 	config := &AppConfig{
@@ -79,9 +81,7 @@ func assertIntEq(t *testing.T, expected, actual int) {
 func TestAPI_feeds(t *testing.T) {
 	clearDatabase()
 
-	feed := feedExamples[0].feed
-
-	db.createFeed(feed.Link)
+	db.createFeed(exampleLink)
 
 	rec := doRequest("GET", "/feeds", nil)
 
@@ -95,8 +95,8 @@ func TestAPI_feeds(t *testing.T) {
 
 	feed2 := feeds[0]
 
-	if feed.Link != feed2.Link {
-		t.Error("Link is not equal", feed.Link, feed2.Link)
+	if exampleLink != feed2.Link {
+		t.Error("Link is not equal", exampleLink, feed2.Link)
 	}
 }
 
@@ -108,7 +108,7 @@ func TestAPI_create_feed(t *testing.T) {
 	)
 	clearDatabase()
 
-	b, err = json.Marshal(&Feed{Link: "https://example.com/feed"})
+	b, err = json.Marshal(&Feed{Link: exampleLink})
 	if err != nil {
 		panic(err)
 	}
@@ -130,8 +130,7 @@ func TestAPI_create_feed(t *testing.T) {
 
 func TestAPI_show_feed(t *testing.T) {
 	clearDatabase()
-	feed := feedExamples[0].feed
-	id, err := app.db.createFeed(feed.Link)
+	id, err := app.db.createFeed(exampleLink)
 
 	if err != nil {
 		panic(err)
@@ -155,8 +154,7 @@ func TestAPI_show_feed(t *testing.T) {
 
 func TestAPI_feed_items(t *testing.T) {
 	clearDatabase()
-	feed := feedExamples[0].feed
-	id, err := app.db.createFeed(feed.Link)
+	id, err := app.db.createFeed(exampleLink)
 
 	if err != nil {
 		panic(err)
@@ -203,8 +201,7 @@ func TestAPI_feed_items(t *testing.T) {
 func TestAPI_delete_feed(t *testing.T) {
 	clearDatabase()
 
-	feed := feedExamples[0].feed
-	id, err := db.createFeed(feed.Link)
+	id, err := db.createFeed(exampleLink)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -241,8 +238,7 @@ func TestAPI_mark_item_read(t *testing.T) {
 	)
 	clearDatabase()
 
-	feed := feedExamples[0].feed
-	id, err = db.createFeed(feed.Link)
+	id, err = db.createFeed(exampleLink)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -293,5 +289,24 @@ func TestAPI_mark_item_read(t *testing.T) {
 
 	if !i.Unread {
 		t.Error("Item should be marked as unread")
+	}
+}
+
+func TestAPI_get_empty_items(t *testing.T) {
+	clearDatabase()
+	id, err := db.createFeed(exampleLink)
+	if err != nil {
+		panic(err)
+	}
+
+	rec := doRequest("GET", "/feeds/"+strconv.Itoa(int(id))+"/items", nil)
+	assertRequestCode(t, rec, 200)
+
+	response := make([]interface{}, 0)
+
+	json.Unmarshal(rec.Body.Bytes(), &response)
+
+	if response == nil {
+		t.Error("Expected response to be an empty array")
 	}
 }

@@ -84,7 +84,7 @@ func (a *App) deleteFeed(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) feedItems(w http.ResponseWriter, r *http.Request) {
 	var (
-		items []Item
+		items = make([]Item, 0)
 		err   error
 		id    int
 	)
@@ -102,7 +102,7 @@ func (a *App) feedItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonResponse(w, &items)
+	jsonResponse(w, items)
 }
 
 func (a *App) markItemRead(w http.ResponseWriter, r *http.Request) {

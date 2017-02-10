@@ -3,3 +3,4 @@
 /static/assets/js/bundle*
 /static/assets/js/ressweb*
 /static/assets/css/app*
+*.sqlite-journal

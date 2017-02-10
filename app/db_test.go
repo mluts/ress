@@ -55,11 +55,13 @@ var itemExamples = []Item{
 	{
 		Title: "Item 1",
 		Link:  "http://example.com/item1",
+		GUID:  "1",
 	},
 
 	{
 		Title: "Item 2",
 		Link:  "http://example.com/item2",
+		GUID:  "2",
 	},
 }
 

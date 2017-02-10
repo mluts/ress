@@ -67,4 +67,13 @@ func translateItem(from *gofeed.Item, to *Item) {
 	to.Link = from.Link
 	to.Description = from.Description
 	to.Content = from.Content
+	to.GUID = itemGUID(from)
+}
+
+func itemGUID(item *gofeed.Item) string {
+	if len(item.GUID) != 0 {
+		return item.GUID
+	}
+
+	return item.Title
 }

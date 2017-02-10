@@ -5,8 +5,24 @@ func (db *DB) createItem(feedID int64, item *Item) (int64, error) {
 
 	stmt := db.prepareNamed(
 		"createItem",
-		`INSERT INTO items (feed_id, title, link, description, content)
-		 VALUES (:feed_id, :title, :link, :description, :content)`)
+		`INSERT INTO items
+			(
+				feed_id,
+				guid,
+				title,
+				link,
+				description,
+				content
+			)
+		VALUES
+			(
+				:feed_id,
+				:guid,
+				:title,
+				:link,
+				:description,
+				:content
+			)`)
 
 	result, err := stmt.Exec(item)
 

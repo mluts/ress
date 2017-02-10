@@ -42,6 +42,7 @@ var Migrations = &migrate.MemoryMigrationSource{
 					title TEXT NOT NULL CHECK(length(title) > 0),
 					content TEXT NOT NULL DEFAULT "",
 					description TEXT NOT NULL DEFAULT "",
+					guid TEXT NOT NULL,
 					author TEXT NOT NULL DEFAULT "",
 					updated DATETIME NOT NULL DEFAULT 0,
 					published DATETIME NOT NULL DEFAULT 0,
@@ -72,7 +73,11 @@ var Migrations = &migrate.MemoryMigrationSource{
 
 			-- items.link should not be duplicated within same feed
 			CREATE UNIQUE INDEX IF NOT EXISTS
-				feed_item_link ON items ( feed_id, link );
+				feed_item_link ON items (feed_id, link);
+
+			-- items.guid should not be duplicated within same feed
+			CREATE UNIQUE INDEX IF NOT EXISTS
+				feed_item_guid ON items(feed_id, guid);
 
 			-- feeds.link should not be duplicated
 			CREATE UNIQUE INDEX IF NOT EXISTS

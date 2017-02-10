@@ -57,6 +57,8 @@ type Item struct {
 
 	Unread bool `db:"unread"`
 
+	GUID string `db:"guid"`
+
 	Updated   *time.Time `db:"updated"`
 	Published *time.Time `db:"published"`
 	CreatedAt *time.Time `db:"created_at"`

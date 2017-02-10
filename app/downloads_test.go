@@ -89,11 +89,14 @@ func TestHandleFeedDownload_saves_items(t *testing.T) {
 		Title: "The Title",
 		Items: []*gofeed.Item{
 			{Title: "The title 1",
-				Link: "http://example.com/1"},
+				Link: "http://example.com/1",
+				GUID: "1"},
 			{Title: "The title 1",
-				Link: "http://example.com/2"},
+				Link: "http://example.com/2",
+				GUID: "2"},
 			{Title: "The title 1",
-				Link: "http://example.com/3"},
+				Link: "http://example.com/3",
+				GUID: "3"},
 		},
 	}
 

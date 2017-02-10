@@ -61,6 +61,15 @@ var Migrations = &migrate.MemoryMigrationSource{
 				SELECT items.*, NOT ifnull(item_reads.id, 0) AS unread FROM items
 					LEFT JOIN item_reads ON item_reads.item_id = items.id;
 
+			CREATE VIEW IF NOT EXISTS feeds_view AS
+				SELECT feeds.*,
+							 ifnull(feed_images.id, 0) AS "feed_image.id",
+							 ifnull(feed_images.url, "") AS "feed_image.url",
+							 ifnull(feed_images.title, "") AS "feed_image.title"
+				FROM feeds
+				LEFT JOIN feed_images ON feed_images.feed_id = feeds.id;
+
+
 			-- items.link should not be duplicated within same feed
 			CREATE UNIQUE INDEX IF NOT EXISTS
 				feed_item_link ON items ( feed_id, link );

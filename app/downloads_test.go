@@ -36,6 +36,14 @@ func TestHandleFeedDownload_updates_feed(t *testing.T) {
 	if out.Image == nil {
 		t.Error("Expected to see a downloaded image")
 	}
+
+	if out.Image.URL != image.URL {
+		t.Errorf("Expected to have image url %s, but have %s", image.URL, out.Image.URL)
+	}
+
+	if out.Image.Title != image.Title {
+		t.Errorf("Expected to have image url %s, but have %s", image.Title, out.Image.Title)
+	}
 }
 
 func TestHandleFeedDownload_saves_error(t *testing.T) {

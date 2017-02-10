@@ -37,12 +37,42 @@ func (db *DB) updateFeed(id int64, feed *Feed) error {
 	}
 
 	if feed.Image != nil {
-		stmt := db.prepare("createFeedImage", `
-			INSERT INTO feed_images (feed_id, url, title) VALUES ($1, $2, $3)
-		`)
-		_, err = stmt.Exec(id, feed.Image.URL, feed.Image.Title)
+		err = db.createOrUpdateFeedImage(id, feed.Image.URL, feed.Image.Title)
 	}
 
+	return err
+}
+
+func (db *DB) createOrUpdateFeedImage(feedID int64, url, title string) error {
+	stmt := db.prepare(
+		"createFeedImage",
+		`INSERT INTO feed_images (feed_id, url, title) VALUES ($1, $2, $3)`)
+
+	switch err := db.getFeedImage(feedID, &Image{}); err {
+	case sql.ErrNoRows:
+		_, err = stmt.Exec(feedID, url, title)
+		return nil
+	case nil:
+		return db.updateFeedImage(feedID, url, title)
+	default:
+		return err
+	}
+}
+
+func (db *DB) updateFeedImage(feedID int64, url, title string) error {
+	stmt := db.prepare(
+		"updateFeedImage",
+		`UPDATE feed_images SET (url, title) = ($1, $2) WHERE feed_id = $3`)
+	_, err := stmt.Exec(url, title, feedID)
+	return err
+}
+
+func (db *DB) getFeedImage(feedID int64, out *Image) error {
+	stmt := db.prepare(
+		"getFeedImage",
+		`SELECT id, url, title FROM feed_images
+			WHERE feed_id = $1 LIMIT 1`)
+	err := stmt.Get(out, feedID)
 	return err
 }
 
@@ -55,40 +85,20 @@ func (db *DB) deleteFeed(id int64) error {
 func (db *DB) getFeed(id int64, out *Feed) error {
 	stmt := db.prepare(
 		"getFeed",
-		"SELECT * FROM feeds WHERE id = $1 ORDER BY id LIMIT 1")
-	err := stmt.Get(out, id)
-
-	if err != nil {
-		return err
-	}
-
-	stmt = db.prepare(
-		"getFeedImage",
-		`SELECT id, url, title FROM feed_images
-			WHERE feed_id = $1 LIMIT 1`)
-
-	image := &Image{}
-	switch err = stmt.Get(image, id); err {
-	case sql.ErrNoRows:
-		return nil
-	case nil:
-		out.Image = image
-		return nil
-	default:
-		return err
-	}
+		"SELECT * FROM feeds_view WHERE id = $1 ORDER BY id LIMIT 1")
+	return stmt.Get(out, id)
 }
 
 func (db *DB) getFeedByLink(link string, out *Feed) error {
 	stmt := db.prepare(
 		"getFeedByLink",
-		"SELECT * FROM feeds WHERE link = $1 ORDER BY id LIMIT 1")
+		"SELECT * FROM feeds_view WHERE link = $1 ORDER BY id LIMIT 1")
 	return stmt.Get(out, link)
 }
 
 func (db *DB) getFeeds(limit int, out *[]Feed) error {
 	stmt := db.prepare(
 		"getFeeds",
-		"SELECT * FROM feeds ORDER BY id LIMIT $1")
+		"SELECT * FROM feeds_view ORDER BY id LIMIT $1")
 	return stmt.Select(out, limit)
 }

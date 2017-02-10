@@ -22,11 +22,15 @@ var (
 	jsonFeedTitle = "Title"
 	jsonFeedLink  = "Link"
 	jsonFeedError = "Error"
+	jsonFeedImage = "Image"
 
 	jsonItemID     = jsonFeedID
 	jsonItemTitle  = jsonFeedTitle
 	jsonItemLink   = jsonFeedLink
 	jsonItemUnread = "Unread"
+
+	jsonImageURL   = "URL"
+	jsonImageTitle = "Title"
 )
 
 // Feed represents a single feed
@@ -36,6 +40,7 @@ type Feed struct {
 	Link     string
 	Selected bool
 	Error    string
+	Image    *Image
 
 	Items []*Item
 }
@@ -47,6 +52,13 @@ type Item struct {
 	Link     string
 	Selected bool
 	Unread   bool
+}
+
+// Image represents mostly a feed image
+type Image struct {
+	ID    int
+	Title string
+	URL   string
 }
 
 func (a *api) getFeeds() ([]*Feed, error) {
@@ -163,6 +175,12 @@ func parseFeed(json interface{}) (*Feed, error) {
 		return nil, fmt.Errorf("feed.%s is %T, not string", jsonFeedError, feedJSON[jsonFeedError])
 	}
 
+	image, err := parseImage(feedJSON[jsonFeedImage])
+	if err != nil {
+		return nil, fmt.Errorf("feed.%s can't be parsed: %v", jsonFeedImage, err)
+	}
+	feed.Image = image
+
 	return feed, nil
 }
 
@@ -212,4 +230,33 @@ func parseItem(json interface{}) (*Item, error) {
 	}
 
 	return item, nil
+}
+
+func parseImage(json interface{}) (*Image, error) {
+	image := Image{}
+
+	switch imageMap := json.(type) {
+	case map[string]interface{}:
+		url, ok := imageMap[jsonImageURL].(string)
+		if !ok {
+			return nil, fmt.Errorf("Unexpected image.%s type: %T",
+				jsonImageURL, imageMap[jsonImageURL])
+		}
+		image.URL = url
+
+		switch title := imageMap[jsonImageTitle].(type) {
+		case string:
+			image.Title = title
+		case nil:
+		default:
+			return nil, fmt.Errorf("image.%s has wrong type: %T",
+				jsonImageTitle, imageMap[jsonImageTitle])
+		}
+
+		return &image, nil
+	case nil:
+		return nil, nil
+	default:
+		return nil, fmt.Errorf("Unexpected type for feed.%s: %T", jsonFeedImage, image)
+	}
 }

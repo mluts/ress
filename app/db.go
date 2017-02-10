@@ -34,7 +34,7 @@ type Feed struct {
 	CreatedAt time.Time `db:"created_at"`
 	UpdatedAt time.Time `db:"updated_at"`
 
-	Image *Image
+	Image *Image `db:"feed_image"`
 }
 
 // Image represents a simple picture with url and optional title

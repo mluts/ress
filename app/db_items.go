@@ -80,8 +80,8 @@ func (db *DB) markItemRead(itemID int64, read bool) (err error) {
 	return
 }
 
-func (db *DB) getItemByLink(feedID int64, link string, item *Item) error {
-	stmt := db.prepare("getItemByLink",
-		"SELECT * FROM items WHERE feed_id = $1 AND link = $2 LIMIT 1")
-	return stmt.Get(item, feedID, link)
+func (db *DB) getItemByGUID(feedID int64, guid string, item *Item) error {
+	stmt := db.prepare("getItemByGUID",
+		"SELECT * FROM items WHERE feed_id = $1 AND guid = $2 LIMIT 1")
+	return stmt.Get(item, feedID, guid)
 }

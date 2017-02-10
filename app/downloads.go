@@ -50,7 +50,8 @@ func (a *App) handleFeedDownload(url string, feed *gofeed.Feed, err error) {
 	}
 
 	for _, item := range feed.Items {
-		switch dberr := a.db.getItemByLink(f.ID, item.Link, &Item{}); dberr {
+		guid := itemGUID(item)
+		switch dberr := a.db.getItemByGUID(f.ID, guid, &Item{}); dberr {
 		case sql.ErrNoRows:
 			newItem := Item{}
 			translateItem(item, &newItem)

@@ -1,5 +1,5 @@
 # ress
-A Fast RSS Aggregator
+The RSS Aggregator
 
 ## Motivation
 I'm working on this rss aggregator as an alternative for tiny tiny rss, 

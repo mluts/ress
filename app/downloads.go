@@ -37,6 +37,14 @@ func (a *App) handleFeedDownload(url string, feed *gofeed.Feed, err error) {
 
 	f.Title = feed.Title
 
+	if feed.PublishedParsed != nil {
+		f.Published = feed.PublishedParsed
+	}
+
+	if feed.UpdatedParsed != nil {
+		f.Updated = feed.UpdatedParsed
+	}
+
 	if feed.Image != nil {
 		f.Image = &Image{
 			URL:   feed.Image.URL,
@@ -69,6 +77,14 @@ func translateItem(from *gofeed.Item, to *Item) {
 	to.Description = from.Description
 	to.Content = from.Content
 	to.GUID = itemGUID(from)
+
+	if from.PublishedParsed != nil {
+		to.Published = from.PublishedParsed
+	}
+
+	if from.UpdatedParsed != nil {
+		to.Updated = from.UpdatedParsed
+	}
 
 	if from.Image != nil {
 		to.Image = &Image{

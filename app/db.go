@@ -29,10 +29,14 @@ type Feed struct {
 	Link   string `db:"link"`
 	Author string `db:"author"`
 
-	Error     string    `db:"error"`
-	Active    bool      `db:"active"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	Error  string `db:"error"`
+	Active bool   `db:"active"`
+
+	Published *time.Time `db:"published"`
+	Updated   *time.Time `db:"updated"`
+
+	CreatedAt *time.Time `db:"created_at"`
+	UpdatedAt *time.Time `db:"updated_at"`
 
 	Image *Image `db:"feed_image"`
 }
@@ -61,6 +65,7 @@ type Item struct {
 
 	Updated   *time.Time `db:"updated"`
 	Published *time.Time `db:"published"`
+
 	CreatedAt *time.Time `db:"created_at"`
 	UpdatedAt *time.Time `db:"updated_at"`
 

@@ -26,8 +26,22 @@ func (db *DB) updateFeed(id int64, feed *Feed) error {
 
 	stmt := db.prepareNamed("updateFeed", `
 		UPDATE feeds SET
-			(title, error, active) =
-			(:title, :error, :active)
+			(
+				title,
+				error,
+				active,
+				author,
+				published,
+				updated
+			) =
+			(
+				:title,
+				:error,
+				:active,
+				:author,
+				:published,
+				:updated
+			)
 			WHERE id = :id
 	`)
 

@@ -18,6 +18,8 @@ var Migrations = &migrate.MemoryMigrationSource{
 					author TEXT NOT NULL DEFAULT "",
 					active BOOLEAN	NOT NULL DEFAULT TRUE,
 					error TEXT NOT NULL DEFAULT "",
+					published DATETIME DEFAULT 0,
+					updated DATETIME DEFAULT 0,
 					created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 					updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 				);
@@ -44,8 +46,8 @@ var Migrations = &migrate.MemoryMigrationSource{
 					description TEXT NOT NULL DEFAULT "",
 					guid TEXT NOT NULL,
 					author TEXT NOT NULL DEFAULT "",
-					updated DATETIME NOT NULL DEFAULT 0,
-					published DATETIME NOT NULL DEFAULT 0,
+					updated DATETIME DEFAULT 0,
+					published DATETIME DEFAULT 0,
 					created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 					updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 				);

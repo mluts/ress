@@ -5,10 +5,12 @@ import (
 	"time"
 )
 
-const rate = time.Second / 2
+const refreshRate = time.Second / 2
+const downloadTimeout = time.Second * 30
 
 func main() {
-	throttle := time.Tick(rate)
+	throttle := time.Tick(refreshRate)
+	downloadTick := time.Tick(downloadTimeout)
 
 	app := newApp()
 
@@ -37,9 +39,18 @@ func main() {
 	go func() {
 		for {
 			<-app.update
-			console.Log("Having an update")
+			console.Log("UI was updated")
 			<-throttle
 			ui.render(app.feeds)
+		}
+	}()
+
+	go func() {
+		for {
+			<-downloadTick
+			console.Log("Downloading feeds...")
+			app.downloadFeeds()
+			app.update <- 1
 		}
 	}()
 

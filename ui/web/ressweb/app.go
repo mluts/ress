@@ -46,11 +46,12 @@ func (a *App) downloadFeeds() {
 		return
 	}
 
-	a.feeds = feeds
-
 	for i := range feeds {
-		go a.downloadItems(feeds[i])
+		a.downloadItems(feeds[i])
 	}
+
+	a.feeds = feeds
+	a.update <- 1
 }
 
 func (a *App) downloadItems(feed *Feed) {
@@ -61,7 +62,6 @@ func (a *App) downloadItems(feed *Feed) {
 	}
 
 	feed.Items = items
-	a.update <- 1
 }
 
 func (a *App) selectItem(id int) {

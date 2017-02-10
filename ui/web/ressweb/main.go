@@ -50,7 +50,6 @@ func main() {
 			<-downloadTick
 			console.Log("Downloading feeds...")
 			app.downloadFeeds()
-			app.update <- 1
 		}
 	}()
 

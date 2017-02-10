@@ -45,6 +45,7 @@ func (a *App) createFeed(w http.ResponseWriter, r *http.Request) {
 	}
 
 	a.enqueueDownloads()
+	go a.downloader.Download(req.Link)
 }
 
 func (a *App) showFeed(w http.ResponseWriter, r *http.Request) {

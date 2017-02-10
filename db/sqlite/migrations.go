@@ -16,7 +16,7 @@ var Migrations = &migrate.MemoryMigrationSource{
 					link TEXT NOT NULL CHECK(length(link) > 0),
 					title TEXT NOT NULL DEFAULT "",
 					author TEXT NOT NULL DEFAULT "",
-					active BOOLEAN 	NOT NULL DEFAULT TRUE,
+					active BOOLEAN	NOT NULL DEFAULT TRUE,
 					error TEXT NOT NULL DEFAULT "",
 					created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 					updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -57,16 +57,32 @@ var Migrations = &migrate.MemoryMigrationSource{
 					item_id INTEGER REFERENCES items(id) ON DELETE CASCADE
 				);
 
+			-- Holds image for item
+			CREATE TABLE IF NOT EXISTS item_images
+				(
+					id INTEGER PRIMARY KEY,
+					item_id INTEGER REFERENCES items(id) ON DELETE CASCADE,
+					url TEXT NOT NULL CHECK(length(url) > 0),
+					title TEXT NOT NULL DEFAULT "",
+					created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+				);
+
 			-- Abstraction on the top of "items"
 			CREATE VIEW IF NOT EXISTS items_view AS
-				SELECT items.*, NOT ifnull(item_reads.id, 0) AS unread FROM items
-					LEFT JOIN item_reads ON item_reads.item_id = items.id;
+				SELECT items.*,
+					NOT ifnull(item_reads.id, 0) AS unread,
+					ifnull(item_images.id, 0) AS "item_image.id",
+					ifnull(item_images.url, "") AS "item_image.url",
+					ifnull(item_images.title, "") AS "item_image.title"
+					FROM items
+					LEFT JOIN item_reads ON item_reads.item_id = items.id
+					LEFT JOIN item_images ON item_images.item_id = items.id;
 
 			CREATE VIEW IF NOT EXISTS feeds_view AS
 				SELECT feeds.*,
-							 ifnull(feed_images.id, 0) AS "feed_image.id",
-							 ifnull(feed_images.url, "") AS "feed_image.url",
-							 ifnull(feed_images.title, "") AS "feed_image.title"
+					ifnull(feed_images.id, 0) AS "feed_image.id",
+					ifnull(feed_images.url, "") AS "feed_image.url",
+					ifnull(feed_images.title, "") AS "feed_image.title"
 				FROM feeds
 				LEFT JOIN feed_images ON feed_images.feed_id = feeds.id;
 
@@ -78,6 +94,9 @@ var Migrations = &migrate.MemoryMigrationSource{
 			-- items.guid should not be duplicated within same feed
 			CREATE UNIQUE INDEX IF NOT EXISTS
 				feed_item_guid ON items(feed_id, guid);
+
+			CREATE UNIQUE INDEX IF NOT EXISTS
+				item_image_item ON item_images(item_id);
 
 			-- feeds.link should not be duplicated
 			CREATE UNIQUE INDEX IF NOT EXISTS

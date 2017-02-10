@@ -85,18 +85,25 @@ func TestHandleFeedDownload_saves_items(t *testing.T) {
 		t.Errorf("Expected to have 0 items in DB, but have %d", count)
 	}
 
+	image := &gofeed.Image{
+		Title: "The title",
+		URL:   "http://example.com/logo.png"}
+
 	feed := &gofeed.Feed{
 		Title: "The Title",
 		Items: []*gofeed.Item{
 			{Title: "The title 1",
-				Link: "http://example.com/1",
-				GUID: "1"},
+				Link:  "http://example.com/1",
+				GUID:  "1",
+				Image: image},
 			{Title: "The title 1",
-				Link: "http://example.com/2",
-				GUID: "2"},
+				Link:  "http://example.com/2",
+				GUID:  "2",
+				Image: image},
 			{Title: "The title 1",
-				Link: "http://example.com/3",
-				GUID: "3"},
+				Link:  "http://example.com/3",
+				GUID:  "3",
+				Image: image},
 		},
 	}
 
@@ -110,5 +117,21 @@ func TestHandleFeedDownload_saves_items(t *testing.T) {
 
 	if app.db.getItemsCount(id, &count); count != 3 {
 		t.Errorf("Expected to have 3 items in DB, but have %d", count)
+	}
+
+	items := make([]Item, 0)
+	err = app.db.getItems(id, SQLNoLimit, &items)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, item := range items {
+		if item.Image.Title != image.Title {
+			t.Errorf("item.Image.Title should be %s, bur have %s", image.Title, item.Image.Title)
+		}
+
+		if item.Image.URL != image.URL {
+			t.Errorf("item.Image.URL should be %s, bur have %s", image.URL, item.Image.URL)
+		}
 	}
 }

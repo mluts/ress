@@ -1,5 +1,9 @@
 package app
 
+import (
+	"database/sql"
+)
+
 func (db *DB) createItem(feedID int64, item *Item) (int64, error) {
 	item.FeedID = feedID
 
@@ -30,18 +34,47 @@ func (db *DB) createItem(feedID int64, item *Item) (int64, error) {
 		return 0, err
 	}
 
-	return result.LastInsertId()
+	id, err := result.LastInsertId()
+	if err != nil {
+		return id, err
+	}
+
+	if image := item.Image; image != nil {
+		err = db.createOrUpdateItemImage(id, image.URL, image.Title)
+	}
+
+	return id, err
 }
 
-func (db *DB) updateItem(id int64, item *Item) error {
-	item.ID = id
+func (db *DB) createOrUpdateItemImage(itemID int64, url, title string) error {
+	stmt := db.prepare(
+		"createItemImage",
+		"INSERT INTO item_images (item_id, url, title) VALUES ($1, $2, $3)")
 
-	stmt := db.prepareNamed(
-		"updateItem",
-		`UPDATE items SET (title, link, description, content) =
-		(:title, :link, :description, :content)`)
+	switch err := db.getItemImage(itemID, &Image{}); err {
+	case sql.ErrNoRows:
+		_, err = stmt.Exec(itemID, url, title)
+		return err
+	case nil:
+		return db.updateItemImage(itemID, url, title)
+	default:
+		return err
+	}
+}
 
-	_, err := stmt.Exec(item)
+func (db *DB) getItemImage(itemID int64, out *Image) error {
+	stmt := db.prepare(
+		"getItemImage",
+		`SELECT id, url, title FROM item_images
+			WHERE item_id = $1 LIMIT 1`)
+	return stmt.Get(out, itemID)
+}
+
+func (db *DB) updateItemImage(itemID int64, url, title string) error {
+	stmt := db.prepare(
+		"updateItemImage",
+		"UPDATE item_images SET (url, title) = ($1, $2) WHERE item_id = $3")
+	_, err := stmt.Exec(url, title, itemID)
 	return err
 }
 

@@ -72,8 +72,7 @@ func (db *DB) getFeedImage(feedID int64, out *Image) error {
 		"getFeedImage",
 		`SELECT id, url, title FROM feed_images
 			WHERE feed_id = $1 LIMIT 1`)
-	err := stmt.Get(out, feedID)
-	return err
+	return stmt.Get(out, feedID)
 }
 
 func (db *DB) deleteFeed(id int64) error {

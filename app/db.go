@@ -63,6 +63,8 @@ type Item struct {
 	Published *time.Time `db:"published"`
 	CreatedAt *time.Time `db:"created_at"`
 	UpdatedAt *time.Time `db:"updated_at"`
+
+	Image *Image `db:"item_image"`
 }
 
 // OpenDatabase returns a common database connection for given dialect

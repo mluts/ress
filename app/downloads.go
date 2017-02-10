@@ -69,6 +69,12 @@ func translateItem(from *gofeed.Item, to *Item) {
 	to.Description = from.Description
 	to.Content = from.Content
 	to.GUID = itemGUID(from)
+
+	if from.Image != nil {
+		to.Image = &Image{
+			Title: from.Image.Title,
+			URL:   from.Image.URL}
+	}
 }
 
 func itemGUID(item *gofeed.Item) string {

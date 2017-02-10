@@ -162,16 +162,9 @@ func TestDB_item(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	newTitle := "The New Title"
-	item.Title = newTitle
-	err = db.updateItem(id, &item)
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	out := Item{}
 	db.getItem(id, &out)
-	if out.Title != newTitle {
-		t.Errorf("Title should be %s, but have %s", newTitle, out.Title)
+	if out.Title != item.Title {
+		t.Errorf("Title should be %s, but have %s", item.Title, out.Title)
 	}
 }

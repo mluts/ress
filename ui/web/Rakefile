@@ -1,0 +1,52 @@
+require 'rake/clean'
+CLEAN << FileList.glob('./static/assets/**/*.{js,css,map}')
+CLEAN << FileList.glob('./bindata*.go')
+WEBPACK = './node_modules/.bin/webpack'
+
+production = false
+
+file 'static/assets/css/app.css' do
+  sh 'sassc -I src/scss src/scss/app.scss static/assets/css/app.css'
+end
+
+file 'static/assets/js/bundle.js' do
+  sh 'npm install'
+  if production
+    sh WEBPACK, '-p'
+  else
+    sh WEBPACK
+  end
+end
+
+file 'static/assets/js/ressweb.js' do
+  sh(*%w(go get -v github.com/gopherjs/gopherjs))
+  Dir.chdir 'ressweb' do
+    sh 'go get -v'
+  end
+  sh(*%w(gopherjs build -o static/assets/js/ressweb.js
+          github.com/mluts/ress/ui/web/ressweb/ajax
+          github.com/mluts/ress/ui/web/ressweb/console
+          github.com/mluts/ress/ui/web/ressweb))
+end
+
+task assets: %w(static/assets/css/app.css
+                static/assets/js/bundle.js
+                static/assets/js/ressweb.js)
+
+file 'bindata_assetfs.go' => :assets do
+  sh 'go get -v github.com/elazarl/go-bindata-assetfs/go-bindata-assetfs'
+  sh 'go-bindata-assetfs -prefix `realpath .` `find static -type d`'
+end
+
+file 'web' => 'bindata_assetfs.go' do |t|
+  sh 'go', 'build', '-o', t.name
+end
+
+task build: 'web'
+
+task :production do
+  puts 'Building for production'
+  production = true
+end
+
+task default: :build

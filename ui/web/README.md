@@ -1,9 +1,9 @@
 # ress Web UI
 
-# Setup
+# Building the project
 
 ```
-npm install
+rake build
 ```
 
 # To see it

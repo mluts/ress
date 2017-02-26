@@ -15,6 +15,7 @@ var (
 	downloadConcurrency uint
 	staticContentPath   string
 	apiPrefix           string
+	rootDir             string // for go-bindata-assetfs development mode
 )
 
 func init() {
@@ -28,6 +29,7 @@ func init() {
 
 func main() {
 	flag.Parse()
+	rootDir = staticContentPath
 
 	config := &app.AppConfig{
 		DBDialect:           "sqlite3",

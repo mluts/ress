@@ -22,10 +22,17 @@ class Item extends React.Component {
   }
 
   render() {
+    const content = (
+      // jshint ignore:start
+      <div>{this.props.data.Content}</div>
+      // jshint ignore:end
+    );
+
     return (
       // jshint ignore:start
       <div className={this.className()} onClick={this.handleClick}>
       <span>{this.props.data.Title}</span>
+      {this.props.data.Selected ? content : null}
       </div>
       // jshint ignore:end
     );

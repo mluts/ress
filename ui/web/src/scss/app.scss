@@ -30,11 +30,15 @@ $error-color: #e74c3c;
   padding-left: 0;
   .item {
     &.selected, &:hover {
-      background-color: $selected-color;
+      & > span {
+        background-color: $selected-color;
+      }
     }
 
     &.selected {
-      font-weight: bold;
+      & > span {
+        font-weight: bold;
+      }
     }
   }
 }

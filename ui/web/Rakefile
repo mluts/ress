@@ -7,13 +7,13 @@ WEBPACK = './node_modules/.bin/webpack'
 
 production = false
 
-file 'static/assets/css/app.css' => 'src/scss/app.scss' do |t|
+file 'static/assets/css/app.css' => FileList.glob('src/scss/**/*.scss') do |t|
   sh "sassc -I src/scss #{t.prerequisites.join(' ')} #{t.name}"
 end
 
-# Assuming that sourcea and output files are specified in webpack.config.js
-file 'static/assets/js/bundle.js' => 'src/index.js' do
-  sh 'yarn install'
+# Assuming that source and output files are specified in webpack.config.js
+file 'static/assets/js/bundle.js' => FileList.glob('src/**/*.js') do
+  sh 'yarn'
 
   if production
     sh WEBPACK, '-p'

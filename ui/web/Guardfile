@@ -1,0 +1,11 @@
+guard :rake, task: 'static/assets/css/app.css' do
+  watch %r{^src\/scss/.+\.scss}
+end
+
+guard :rake, task: 'static/assets/js/bundle.js' do
+  watch %r{^src\/.+\.js}
+end
+
+guard :rake, task: 'static/assets/js/ressweb.js' do
+  watch %r{^ressweb\/.+\.go}
+end

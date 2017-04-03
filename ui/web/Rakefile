@@ -8,7 +8,7 @@ WEBPACK = './node_modules/.bin/webpack'
 production = false
 
 file 'static/assets/css/app.css' => FileList.glob('src/scss/**/*.scss') do |t|
-  sh "sassc -I src/scss #{t.prerequisites.join(' ')} #{t.name}"
+  sh "sassc -I src/scss src/scss/app.scss #{t.name}"
 end
 
 # Assuming that source and output files are specified in webpack.config.js

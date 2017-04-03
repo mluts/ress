@@ -21,10 +21,14 @@ class Item extends React.Component {
     this.props.onSelect(this.props.data);
   }
 
+  descriptionHTML() {
+    return {__html: this.props.data.Description};
+  }
+
   render() {
     const content = (
       // jshint ignore:start
-      <div>{this.props.data.Content}</div>
+      <div className="reset-element" dangerouslySetInnerHTML={this.descriptionHTML()}></div>
       // jshint ignore:end
     );
 

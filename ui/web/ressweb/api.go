@@ -24,12 +24,13 @@ var (
 	jsonFeedError = "Error"
 	jsonFeedImage = "Image"
 
-	jsonItemID      = jsonFeedID
-	jsonItemTitle   = jsonFeedTitle
-	jsonItemLink    = jsonFeedLink
-	jsonItemUnread  = "Unread"
-	jsonItemImage   = jsonFeedImage
-	jsonItemContent = "Content"
+	jsonItemID          = jsonFeedID
+	jsonItemTitle       = jsonFeedTitle
+	jsonItemLink        = jsonFeedLink
+	jsonItemUnread      = "Unread"
+	jsonItemImage       = jsonFeedImage
+	jsonItemContent     = "Content"
+	jsonItemDescription = "Description"
 
 	jsonImageURL   = "URL"
 	jsonImageTitle = "Title"
@@ -49,9 +50,10 @@ type Feed struct {
 
 // Item represents a single feed item
 type Item struct {
-	ID       int
-	Title    string
-	Content  string
+	ID          int
+	Title       string
+	Description string
+
 	Link     string
 	Selected bool
 	Unread   bool
@@ -233,8 +235,14 @@ func parseItem(json interface{}) (*Item, error) {
 		return nil, fmt.Errorf("item.%s is %T, not bool", jsonItemUnread, itemJSON[jsonItemUnread])
 	}
 
-	if item.Content, ok = itemJSON[jsonItemContent].(string); !ok {
-		return nil, fmt.Errorf("item.%s is %T, not bool", jsonItemContent, itemJSON[jsonItemContent])
+	if item.Description, ok = itemJSON[jsonItemDescription].(string); !ok {
+		return nil, fmt.Errorf("item.%s is %T, not string", jsonItemDescription, itemJSON[jsonItemDescription])
+	}
+
+	if len(item.Description) == 0 {
+		if item.Description, ok = itemJSON[jsonItemContent].(string); !ok {
+			return nil, fmt.Errorf("item.%s is %T, not string", jsonItemContent, itemJSON[jsonItemContent])
+		}
 	}
 
 	image, err := parseImage(itemJSON[jsonItemImage])

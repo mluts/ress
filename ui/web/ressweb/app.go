@@ -7,10 +7,11 @@ import (
 
 // App is an application state container
 type App struct {
-	api        *api
-	feeds      []*Feed
-	feedsMutex chan int
-	update     chan int
+	api                            *api
+	feeds                          []*Feed
+	feedsMutex                     chan int
+	update                         chan int
+	selectedFeedID, selectedItemID int
 }
 
 func newApp() *App {
@@ -26,6 +27,7 @@ func (a *App) selectFeed(id int) {
 	a.feedsMutex <- 1
 	defer func() { <-a.feedsMutex }()
 
+	a.selectedFeedID = id
 	for _, feed := range a.feeds {
 		feed.Selected = feed.ID == id
 	}
@@ -48,6 +50,9 @@ func (a *App) downloadFeeds() {
 
 	for i := range feeds {
 		a.downloadItems(feeds[i])
+		if feeds[i].ID == a.selectedFeedID {
+			feeds[i].Selected = true
+		}
 	}
 
 	a.feeds = feeds
@@ -61,6 +66,12 @@ func (a *App) downloadItems(feed *Feed) {
 		return
 	}
 
+	for i := range items {
+		if items[i].ID == a.selectedItemID {
+			items[i].Selected = true
+		}
+	}
+
 	feed.Items = items
 }
 
@@ -68,6 +79,7 @@ func (a *App) selectItem(id int) {
 	a.feedsMutex <- 1
 	defer func() { <-a.feedsMutex }()
 
+	a.selectedItemID = id
 	for _, feed := range a.feeds {
 		if feed.Selected {
 			for _, item := range feed.Items {
